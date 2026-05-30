@@ -5,8 +5,8 @@
  *
  * Reads every `.family/*.md` (plaintext, git-ignored), renders it to HTML, and
  * AES-GCM encrypts the lot with a key derived from your passcode via PBKDF2.
- * Writes `src/generated/family.enc.json` — the ONLY artefact that gets committed
- * or deployed. The passcode and plaintext never leave your machine.
+ * Writes `src/generated/family.enc.json`, the ONLY artefact that gets committed
+ * or deployed. My passcode and plaintext never leave my machine.
  *
  * Passcode is read from (in order): --passcode=… arg, FAMILY_PASSCODE env
  * (a local .env works), otherwise you're prompted.
@@ -38,7 +38,7 @@ async function getPasscode() {
     try {
       process.loadEnvFile(resolve(root, '.env'));
     } catch {
-      /* older Node without loadEnvFile — ignore */
+      /* older Node without loadEnvFile, ignore */
     }
   }
   if (process.env.FAMILY_PASSCODE) return process.env.FAMILY_PASSCODE;

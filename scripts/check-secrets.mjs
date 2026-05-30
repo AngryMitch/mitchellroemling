@@ -1,7 +1,7 @@
 /**
  * Friendly, non-blocking guard: warns if you've edited the plaintext family
  * content more recently than you last ran `npm run encrypt`, so a forgotten
- * re-encrypt is obvious. Runs before `npm run dev`. Always exits 0 — it never
+ * re-encrypt is obvious. Runs before `npm run dev`. Always exits 0, so it never
  * blocks anything (and stays silent when there's no .family/ folder, e.g. on a
  * fresh clone or on Cloudflare).
  */

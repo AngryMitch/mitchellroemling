@@ -5,9 +5,9 @@ import { SITE } from '../consts';
 /**
  * The classic File / Edit / View / Help menu strip.
  *
- * None of these menus actually *do* anything (there's no file system here) —
- * so for now each one is a sneaky easter egg that pops a snarky dialog.
- * Drop it into a Window's menubar slot:  <MenuBar slot="menubar" />
+ * None of these menus actually *do* anything (there's no file system here),
+ * so for now I made each one a sneaky easter egg that pops a snarky dialog.
+ * I drop it into a Window's menubar slot:  <MenuBar slot="menubar" />
  */
 const items = ['File', 'Edit', 'View', 'Help'] as const;
 const idFor = (label: string) => `mb-${label.toLowerCase()}`;
@@ -22,7 +22,7 @@ const idFor = (label: string) => `mb-${label.toLowerCase()}`;
 }
 
 <Dialog id="mb-file" title="File" variant="info">
-  <p>There are no files here — just Markdown and good intentions. 📄</p>
+  <p>There are no files here, just Markdown and good intentions. 📄</p>
 </Dialog>
 
 <Dialog id="mb-edit" title="Edit" variant="question">

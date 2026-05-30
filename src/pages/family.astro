@@ -5,7 +5,7 @@ import Button from '../components/Button.astro';
 import encData from '../generated/family.enc.json';
 
 // The page only ever ships ciphertext (`encData`). The plaintext gift list and
-// the passcode live nowhere in the build — see docs/family-corner-plan.md.
+// the passcode live nowhere in the build (see docs/family-corner-plan.md).
 // noindex + excluded from the sitemap so it stays out of search engines.
 ---
 
@@ -22,7 +22,7 @@ import encData from '../generated/family.enc.json';
         <h1 class="lock-title font-chrome">This folder is locked</h1>
         <p class="lock-text">
           A private corner for friends &amp; family. Enter the passcode to open
-          it — the contents are encrypted, so there's nothing to peek at without
+          it. The contents are encrypted, so there's nothing to peek at without
           the code.
         </p>
         <form id="unlock-form" class="unlock-form" autocomplete="off">
@@ -244,7 +244,7 @@ import encData from '../generated/family.enc.json';
       false,
       ['decrypt'],
     );
-    // Throws if the passcode is wrong (GCM auth tag fails) — that's our check.
+    // Throws if the passcode is wrong (GCM auth tag fails), which is my check.
     const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
     const payload = JSON.parse(new TextDecoder().decode(buf));
     return payload.pages as Page[];
@@ -277,7 +277,7 @@ import encData from '../generated/family.enc.json';
     selectPage(0);
     lockedEl.hidden = true;
     unlockedEl.hidden = false;
-    statusEl.textContent = `Unlocked — ${pages.length} document(s)`;
+    statusEl.textContent = `Unlocked, ${pages.length} document(s)`;
     document.documentElement.classList.add('family-mode');
   }
 

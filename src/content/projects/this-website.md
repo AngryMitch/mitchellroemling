@@ -10,7 +10,7 @@ tech:
   - TypeScript
   - CSS
   - Cloudflare Pages
-github: https://github.com/mitchellroemling/mitchellroemling.com
+github: https://github.com/AngryMitch/mitchellroemling
 thumbnail: ../../assets/projects/images/this-website/thumbnail.png
 featured: true
 draft: false

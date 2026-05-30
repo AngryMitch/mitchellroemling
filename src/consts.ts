@@ -11,10 +11,10 @@ export const SITE = {
   tagline: 'Artist & Developer',
   /** Default meta description for SEO. */
   description:
-    'The personal portfolio of Mitchell Roemling — mixed-media artwork, coding projects, and writing, served up in a cosy retro Windows desktop.',
+    'My personal portfolio: mixed-media artwork, coding projects, and writing, served up in a cosy retro Windows desktop.',
   /** Canonical production URL (keep in sync with astro.config.mjs `site`). */
   url: 'https://mitchellroemling.com',
-  /** Author email — also used as the primary contact. */
+  /** My email, which doubles as my primary contact. */
   email: 'mitch@mitchellroemling.com',
   /** Locale for <html lang> and Open Graph. */
   locale: 'en',
@@ -46,7 +46,7 @@ export const SOCIAL_LINKS = [
 ] as const;
 
 /**
- * Primary navigation — drives the Start Menu and desktop icons.
+ * My primary navigation. It drives the Start Menu and desktop icons.
  * `icon` maps to an SVG file in /public/icons/.
  */
 export const NAV_ITEMS = [

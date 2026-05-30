@@ -11,7 +11,7 @@ export async function GET(context: APIContext) {
   );
 
   return rss({
-    title: `${SITE.name} — Blog`,
+    title: `${SITE.name} - Blog`,
     description: 'Writing about art, code, and the spaces in between.',
     site: context.site ?? SITE.url,
     items: posts.map((post) => ({

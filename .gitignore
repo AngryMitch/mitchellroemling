@@ -29,9 +29,9 @@ Thumbs.db
 .wrangler/
 
 # ───────────────────────────────────────────────────────────────
-# Family corner — PLAINTEXT secret content. NEVER commit these.
-# Edit them locally, run `npm run encrypt`, then commit ONLY the
+# Family corner: PLAINTEXT secret content. I NEVER commit these.
+# I edit them locally, run `npm run encrypt`, then commit ONLY the
 # resulting ciphertext at src/generated/family.enc.json.
 # ───────────────────────────────────────────────────────────────
 .family/
-# (src/generated/family.enc.json IS committed — it's just ciphertext.)
+# (src/generated/family.enc.json IS committed, it's just ciphertext.)

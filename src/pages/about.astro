@@ -6,7 +6,7 @@ import MenuBar from '../components/MenuBar.astro';
 import { SITE } from '../consts';
 import profile from '../assets/profile.png';
 
-// ---- PLACEHOLDER content — see PLACEHOLDERS.md -------------------------
+// ---- Placeholder content, see PLACEHOLDERS.md -------------------------
 const skills = [
   { name: 'Drawing & Illustration', level: 'Expert' },
   { name: 'Mixed-media painting', level: 'Advanced' },
@@ -40,9 +40,9 @@ const funStats = [
 
 <WindowLayout
   title="About Me"
-  windowTitle="About Me — Notepad"
+  windowTitle="About Me - Notepad"
   icon="/icons/about.svg"
-  description={`About ${SITE.name} — ${SITE.tagline}.`}
+  description={`About ${SITE.name}, ${SITE.tagline}.`}
 >
   <MenuBar slot="menubar" />
 
@@ -64,12 +64,12 @@ const funStats = [
 
         <div class="prose bio">
           <p>
-            Hi — I'm <strong>{SITE.name}</strong>, a {SITE.tagline.toLowerCase()}
+            Hi, I'm <strong>{SITE.name}</strong>, a {SITE.tagline.toLowerCase()}
             based on the internet. I make mixed-media artwork, build small
             useful things on the web, and write about both.
           </p>
           <p>
-            <em>[PLACEHOLDER bio — replace this with a couple of real
+            <em>[PLACEHOLDER bio, replace this with a couple of real
             paragraphs about who you are, what you make, and what you're
             into. See PLACEHOLDERS.md.]</em>
           </p>
@@ -100,7 +100,7 @@ const funStats = [
     <!-- Properties (easter egg) -->
     <section id="panel-props" class="panel" role="tabpanel" aria-labelledby="tab-props" hidden>
       <p class="prose">
-        <strong>{SITE.name} — Properties</strong>
+        <strong>{SITE.name} - Properties</strong>
       </p>
       <table class="props-table">
         <tbody>

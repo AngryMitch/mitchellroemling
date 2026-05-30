@@ -19,8 +19,7 @@ flow is unchanged. No external CMS service, no database, no deployed admin.
 Use **[Keystatic](https://keystatic.com)** in **local mode**. It's built by
 Thinkmill specifically for this: a Git/file-based editor with first-class Astro
 support, a typed schema that mirrors our existing content collections, and an
-admin UI at `/keystatic` that reads and writes the actual files in the repo —
-Markdown frontmatter **and** images into `src/assets/`. It runs only in dev, so
+admin UI at `/keystatic` that reads and writes the actual files in the repo, Markdown frontmatter **and** images into `src/assets/`. It runs only in dev, so
 there's nothing to secure in production.
 
 Estimated effort: **~1–2 hours** to wire up all three collections.

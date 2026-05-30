@@ -4,8 +4,8 @@
  *
  *   npm run generate:placeholders
  *
- * Replace any of these files with your real artwork/screenshots/photos —
- * keep the same path + filename and everything just works. See PLACEHOLDERS.md.
+ * I replace any of these files with my real artwork/screenshots/photos, and as
+ * long as I keep the same path + filename everything just works. See PLACEHOLDERS.md.
  */
 import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';

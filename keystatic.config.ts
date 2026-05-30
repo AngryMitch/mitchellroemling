@@ -66,7 +66,7 @@ export default config({
         featured: fields.checkbox({ label: 'Featured' }),
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
         hidden: fields.checkbox({
-          label: 'Hidden (unlisted — family corner only)',
+          label: 'Hidden (unlisted, family corner only)',
           defaultValue: false,
         }),
         body: fields.markdoc({ label: 'Body', extension: 'md' }),
@@ -122,7 +122,7 @@ export default config({
         featured: fields.checkbox({ label: 'Featured' }),
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
         hidden: fields.checkbox({
-          label: 'Hidden (unlisted — family corner only)',
+          label: 'Hidden (unlisted, family corner only)',
           defaultValue: false,
         }),
         body: fields.markdoc({ label: 'Notes (optional)', extension: 'md' }),
@@ -174,7 +174,7 @@ export default config({
         featured: fields.checkbox({ label: 'Featured' }),
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
         hidden: fields.checkbox({
-          label: 'Hidden (unlisted — family corner only)',
+          label: 'Hidden (unlisted, family corner only)',
           defaultValue: false,
         }),
         body: fields.markdoc({ label: 'Write-up', extension: 'md' }),

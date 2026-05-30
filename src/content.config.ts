@@ -5,9 +5,9 @@ import { z } from 'astro/zod';
 import { ARTWORK_TYPES, PROJECT_STATUSES } from './consts';
 
 /**
- * ARTWORK — mixed-media gallery pieces.
- * Drop a `.md` file in src/content/artwork/ and an image in
- * src/assets/artwork/images/. Reference the image with a path relative
+ * ARTWORK: my mixed-media gallery pieces.
+ * I drop a `.md` file in src/content/artwork/ and an image in
+ * src/assets/artwork/images/, and reference the image with a path relative
  * to the markdown file, e.g. `../../assets/artwork/images/my-piece.png`.
  */
 const artwork = defineCollection({
@@ -33,7 +33,7 @@ const artwork = defineCollection({
 });
 
 /**
- * PROJECTS — coding work shown in the file-explorer list view.
+ * PROJECTS: my coding work, shown in the file-explorer list view.
  */
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
@@ -55,9 +55,9 @@ const projects = defineCollection({
 });
 
 /**
- * BLOG — written posts. A post can pull in artwork photos by referencing
+ * BLOG: my written posts. A post can pull in artwork photos by referencing
  * artwork entries via `relatedArtwork` (an array of artwork ids/slugs).
- * Those images are then rendered inline on the post page.
+ * I then render those images inline on the post page.
  */
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
