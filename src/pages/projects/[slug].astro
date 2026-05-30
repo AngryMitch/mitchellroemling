@@ -72,8 +72,8 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     </div>
 
     <div class="links">
-      {data.github && <Button href={data.github}>◧ Source (GitHub)</Button>}
-      {data.live && <Button variant="primary" href={data.live}>▶ Live Demo</Button>}
+      {data.github && <Button href={data.github} target="_blank">◧ Source (GitHub)</Button>}
+      {data.live && <Button variant="primary" href={data.live} target="_blank">▶ Live Demo</Button>}
     </div>
 
     <div class="prose body">

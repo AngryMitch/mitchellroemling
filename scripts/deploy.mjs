@@ -22,10 +22,12 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = resolve(root, 'dist');
 
-// I deploy with wrangler.jsonc, so `wrangler deploy` is the command I want.
-// If I ever move to Cloudflare Pages instead, I swap this for:
-//   ['pages', 'deploy', 'dist']
-const WRANGLER_ARGS = ['deploy'];
+// I deploy to Cloudflare Pages, so I point wrangler at my built dist/ folder.
+// Each piece is its own array item (a single 'pages deploy' string would be
+// passed as one argument and confuse wrangler).
+// If I add `pages_build_output_dir: "dist"` to wrangler.jsonc, I can drop the
+// trailing 'dist' here. For Workers static assets instead, use ['deploy'].
+const WRANGLER_ARGS = ['pages', 'deploy', 'dist'];
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry');

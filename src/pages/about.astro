@@ -6,14 +6,12 @@ import MenuBar from '../components/MenuBar.astro';
 import { SITE } from '../consts';
 import profile from '../assets/profile.png';
 
-// ---- Placeholder content, see PLACEHOLDERS.md -------------------------
 const skills = [
-  { name: 'Drawing & Illustration', level: 'Expert' },
-  { name: 'Mixed-media painting', level: 'Advanced' },
-  { name: 'Photography', level: 'Advanced' },
-  { name: 'TypeScript / JavaScript', level: 'Advanced' },
-  { name: 'Astro / Web', level: 'Advanced' },
-  { name: 'Pixel art', level: 'Intermediate' },
+  { name: 'Drawing & Illustration', level: 'Hobby' },
+  { name: 'Photography', level: 'Hobby' },
+  { name: 'TypeScript / JavaScript', level: 'Intermediate' },
+  { name: 'Astro / Web', level: 'Intermediate' },
+  { name: 'Pixel art', level: 'Hobby' },
 ];
 
 // Whole years elapsed since a start year (or full 'YYYY-MM-DD' date).
@@ -31,10 +29,10 @@ function yearsSince(start: number | string): number {
 
 // Set the start year/date once. Plain strings stay literal (no auto-update).
 const funStats = [
-  { label: 'Years making art', value: `${yearsSince(2012)}` },
+  { label: 'Years making art', value: `${yearsSince(2022)}` },
   { label: 'Years writing code', value: `${yearsSince(2024)}` },
   { label: 'Cups of coffee consumed', value: '<ERROR />' },
-  { label: 'Sketchbooks filled', value: '3' },
+  { label: 'Sketchbooks filled', value: '0' },
 ];
 ---
 
@@ -69,12 +67,7 @@ const funStats = [
             useful things on the web, and write about both.
           </p>
           <p>
-            <em>[PLACEHOLDER bio, replace this with a couple of real
-            paragraphs about who you are, what you make, and what you're
-            into. See PLACEHOLDERS.md.]</em>
-          </p>
-          <p>
-            By day I work with code; by night (and most weekends) you'll find
+            By day I work on other peoples code; by night (and most weekends) you'll find
             me with a sketchbook, a camera, or a half-finished canvas. This
             site is where those worlds meet.
           </p>
