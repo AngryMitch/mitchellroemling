@@ -1,0 +1,119 @@
+---
+import '../styles/global.css';
+import Taskbar from '../components/Taskbar.astro';
+import { SITE } from '../consts';
+
+/**
+ * The HTML shell shared by every page: <head> meta, fonts, the desktop
+ * wallpaper background, a slot for page content, and the fixed Taskbar.
+ */
+interface Props {
+  title: string;
+  description?: string;
+  /** Path to an OG image under /public, optional. */
+  ogImage?: string;
+  /** Hide the taskbar (used by the full-screen BSOD 404). */
+  chrome?: boolean;
+  /** Extra class on <body> (e.g. "is-desktop"). */
+  bodyClass?: string;
+  /** Keep this page out of search engines (e.g. the .family corner). */
+  noindex?: boolean;
+}
+const {
+  title,
+  description = SITE.description,
+  ogImage = '/og-default.svg',
+  chrome = true,
+  bodyClass,
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title === SITE.name ? title : `${title} — ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+
+    <!-- Restore "family mode" before paint (no flash) if unlocked this session. -->
+    <script is:inline>
+      try {
+        if (sessionStorage.getItem('mr:family') === '1')
+          document.documentElement.classList.add('family-mode');
+      } catch (e) {}
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#000080" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Pixel chrome font (UI labels only). Body uses local Georgia. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${SITE.name} — Blog`}
+      href="/rss.xml"
+    />
+  </head>
+  <body class:list={['app', bodyClass, { 'no-chrome': !chrome }]}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main id="main" class="app-main">
+      <slot />
+    </main>
+    {chrome && <Taskbar />}
+
+    <style>
+      .app {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        /* The Windows-Vista-style aurora wallpaper, done as a pure-CSS
+           gradient so there is no copyrighted asset and nothing to download.
+           Swap for a real image by setting a background-image on .app. */
+        background-color: #0a1b3d;
+        background-image:
+          radial-gradient(120% 80% at 18% 8%, rgba(60, 200, 180, 0.55), transparent 60%),
+          radial-gradient(120% 90% at 82% 0%, rgba(60, 130, 230, 0.6), transparent 55%),
+          radial-gradient(160% 120% at 50% 120%, rgba(20, 60, 140, 0.9), transparent 70%),
+          linear-gradient(160deg, #06122e 0%, #0c2a5e 45%, #07306b 100%);
+        background-attachment: fixed;
+      }
+      .app-main {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding-bottom: calc(var(--taskbar-h) + 1rem);
+      }
+      .app.no-chrome .app-main {
+        padding-bottom: 0;
+      }
+    </style>
+  </body>
+</html>

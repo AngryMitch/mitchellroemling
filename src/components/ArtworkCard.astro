@@ -1,0 +1,76 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+/**
+ * A single artwork shown as an Explorer "file" tile: framed thumbnail +
+ * filename-style label. Links to the artwork's detail page.
+ */
+interface Props {
+  entry: CollectionEntry<'artwork'>;
+}
+const { entry } = Astro.props;
+const { data } = entry;
+const thumb = data.thumbnail ?? data.image;
+---
+
+<a class="art-card" href={`/gallery/${entry.id}`} data-type={data.type}>
+  <span class="frame bevel-sunken">
+    <Image
+      src={thumb}
+      alt={data.title}
+      width={320}
+      height={320}
+      widths={[160, 320]}
+      sizes="(max-width: 600px) 45vw, 200px"
+      class="thumb"
+    />
+  </span>
+  <span class="caption font-chrome">{data.title}</span>
+  <span class="type-tag">{data.type}</span>
+</a>
+
+<style>
+  .art-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    text-decoration: none;
+    color: var(--win-text);
+    text-align: center;
+  }
+  .frame {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--win-white);
+    padding: 4px;
+  }
+  .thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .caption {
+    font-size: 8px;
+    line-height: 1.4;
+    padding: 2px 5px;
+    max-width: 100%;
+  }
+  .type-tag {
+    font-size: 0.72rem;
+    color: #555;
+    text-transform: capitalize;
+  }
+  .art-card:hover .caption,
+  .art-card:focus-visible .caption {
+    background: var(--win-selection);
+    color: var(--win-selection-text);
+    outline: 1px dotted var(--win-navy);
+  }
+  .art-card:hover .frame {
+    outline: 2px solid var(--win-luna-blue);
+  }
+</style>

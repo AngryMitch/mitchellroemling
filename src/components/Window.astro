@@ -1,0 +1,125 @@
+---
+import TitleBar from './TitleBar.astro';
+
+/**
+ * Static window chrome: a raised, bevelled frame with a title bar and a
+ * content body. Use the default slot for the window body. Optional named
+ * slots: `menubar` (a Win95 menu strip) and `statusbar` (bottom status row).
+ */
+interface Props {
+  title: string;
+  icon?: string;
+  closeHref?: string;
+  /** Make the body a recessed white "content well". Default true. */
+  inset?: boolean;
+  /** Constrain the window width; otherwise it fills its container. */
+  maxWidth?: string;
+  controls?: boolean;
+  class?: string;
+}
+const {
+  title,
+  icon,
+  closeHref = '/',
+  inset = true,
+  maxWidth,
+  controls = true,
+  class: className,
+} = Astro.props;
+
+const hasMenu = Astro.slots.has('menubar');
+const hasStatus = Astro.slots.has('statusbar');
+---
+
+<section
+  class:list={['window', 'bevel-raised', className]}
+  style={maxWidth ? `max-width:${maxWidth}` : undefined}
+>
+  <TitleBar title={title} icon={icon} closeHref={closeHref} controls={controls} />
+
+  {
+    hasMenu && (
+      <div class="menubar font-chrome">
+        <slot name="menubar" />
+      </div>
+    )
+  }
+
+  <div class:list={['window-body', { inset, 'bevel-sunken': inset }]}>
+    <slot />
+  </div>
+
+  {
+    hasStatus && (
+      <div class="statusbar">
+        <slot name="statusbar" />
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .window {
+    background: var(--win-grey);
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: transform var(--transition), opacity var(--transition);
+  }
+  /* Minimise-to-tray: animate down toward the taskbar, then hide. */
+  .window.is-minimizing {
+    animation: win-minimize 180ms ease forwards;
+    transform-origin: bottom left;
+  }
+  .window.is-minimized {
+    display: none;
+  }
+  .window.is-restoring {
+    animation: win-restore 180ms ease;
+    transform-origin: bottom left;
+  }
+  @keyframes win-minimize {
+    to {
+      transform: scale(0.2) translateY(60vh);
+      opacity: 0;
+    }
+  }
+  @keyframes win-restore {
+    from {
+      transform: scale(0.2) translateY(60vh);
+      opacity: 0;
+    }
+  }
+  .menubar {
+    display: flex;
+    gap: 2px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+  .window-body {
+    flex: 1;
+    margin-top: 3px;
+    padding: var(--body-pad, 1rem);
+    background: var(--win-white);
+    overflow-wrap: break-word;
+  }
+  .window-body.inset {
+    /* The .bevel-sunken utility supplies the recessed border. */
+    background: var(--win-white);
+  }
+  .statusbar {
+    display: flex;
+    gap: 4px;
+    margin-top: 3px;
+    padding: 2px;
+  }
+  /* Maximised state toggled by the title bar's maximise button. */
+  .window.is-maximised {
+    position: fixed;
+    inset: 4px 4px calc(var(--taskbar-h) + 4px) 4px;
+    max-width: none !important;
+    z-index: 50;
+    overflow: auto;
+  }
+</style>

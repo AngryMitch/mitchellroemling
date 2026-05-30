@@ -1,0 +1,111 @@
+---
+import { NAV_ITEMS, SITE, SOCIAL_LINKS } from '../consts';
+
+/**
+ * The Start Menu panel. Hidden by default; toggled by the Start button in
+ * the Taskbar (see Taskbar.astro's script). The vertical brand strip on the
+ * left mimics the classic Win95 "Windows 95" sidebar.
+ */
+const pathname = Astro.url.pathname;
+const isActive = (match: string) =>
+  pathname === match || pathname.startsWith(match + '/');
+---
+
+<div id="start-menu" class="start-menu bevel-raised" hidden>
+  <div class="brand-strip" aria-hidden="true">
+    <span class="brand-name font-chrome">{SITE.name}</span>
+  </div>
+  <nav class="menu-items" aria-label="Start menu">
+    <a class="item" href="/">
+      <img src="/icons/computer.svg" alt="" class="pixelated" width="24" height="24" />
+      <span>Home (Desktop)</span>
+    </a>
+    <hr />
+    {
+      NAV_ITEMS.map((n) => (
+        <a class:list={['item', { active: isActive(n.match) }]} href={n.href}>
+          <img src={`/icons/${n.icon}.svg`} alt="" class="pixelated" width="24" height="24" />
+          <span>{n.label}</span>
+        </a>
+      ))
+    }
+    <hr />
+    {
+      SOCIAL_LINKS.map((s) => (
+        <a class="item small" href={s.href} rel="me noopener">
+          <img src={`/icons/${s.icon}.svg`} alt="" class="pixelated" width="20" height="20" />
+          <span>{s.label}</span>
+        </a>
+      ))
+    }
+  </nav>
+</div>
+
+<style>
+  .start-menu {
+    position: absolute;
+    bottom: calc(var(--taskbar-h) - 2px);
+    left: 2px;
+    z-index: 200;
+    display: flex;
+    width: min(320px, 92vw);
+    background: var(--win-grey);
+    padding: 3px;
+  }
+  .start-menu[hidden] {
+    display: none;
+  }
+  .brand-strip {
+    width: 30px;
+    flex: none;
+    background: linear-gradient(180deg, var(--win-luna-blue), var(--win-navy));
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .brand-name {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #fff;
+    font-size: 11px;
+    white-space: nowrap;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  }
+  .menu-items {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    min-width: 0;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    text-decoration: none;
+    color: var(--win-text);
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+  }
+  .item.small {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+  }
+  .item:hover,
+  .item:focus-visible {
+    background: var(--win-selection);
+    color: var(--win-selection-text);
+    outline: none;
+  }
+  .item.active {
+    font-weight: bold;
+  }
+  .menu-items hr {
+    border: none;
+    border-top: 1px solid var(--win-dark);
+    border-bottom: 1px solid var(--win-light);
+    margin: 4px 2px;
+  }
+</style>

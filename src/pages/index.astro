@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DesktopIcon from '../components/DesktopIcon.astro';
+import { SITE, NAV_ITEMS } from '../consts';
+
+// Desktop icons = primary nav + a Recycle Bin easter-egg + the locked
+// `.family` corner (a visible locked door; double-click to enter the passcode).
+const icons = [
+  ...NAV_ITEMS.map((n) => ({ href: n.href, icon: n.icon, label: n.label })),
+  { href: '/recycle-bin', icon: 'recycle', label: 'Recycle Bin' },
+  { href: '/family', icon: 'family-locked', label: '.family' },
+];
+---
+
+<BaseLayout title={SITE.name} description={SITE.description} bodyClass="is-desktop">
+  <div class="desktop">
+    <div class="icons" role="list" aria-label="Desktop shortcuts">
+      {icons.map((i) => <DesktopIcon href={i.href} icon={i.icon} label={i.label} />)}
+    </div>
+
+    <div class="welcome bevel-raised" role="note">
+      <div class="welcome-bar font-chrome">Welcome.txt — Notepad</div>
+      <div class="welcome-body">
+        <p class="hi font-chrome">Hi, I'm {SITE.name}.</p>
+        <p>
+          {SITE.tagline}. This is my corner of the web, dressed up like an old
+          Windows desktop. Double-click an icon to explore my artwork, code
+          projects, and writing — or hit <strong>Start</strong> in the corner.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .desktop {
+    min-height: calc(100vh - var(--taskbar-h) - 1rem);
+    min-height: calc(100dvh - var(--taskbar-h) - 1rem);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 1.5rem;
+    padding: 1.25rem;
+  }
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(2, 92px);
+    gap: 6px;
+    align-content: start;
+  }
+  .welcome {
+    justify-self: end;
+    width: min(360px, 90vw);
+    margin-top: 1rem;
+    padding: 3px;
+    background: var(--win-grey);
+  }
+  .welcome-bar {
+    font-size: 9px;
+    color: #fff;
+    padding: 4px 6px;
+    background: linear-gradient(90deg, var(--win-navy), var(--win-luna-blue));
+  }
+  .welcome-body {
+    background: var(--win-white);
+    margin-top: 3px;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    line-height: 1.6;
+    border: 2px solid;
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+  }
+  .hi {
+    font-size: 12px;
+    margin-bottom: 10px;
+    color: var(--win-navy);
+  }
+
+  @media (max-width: 640px) {
+    .desktop {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .icons {
+      grid-template-columns: 1fr;
+      gap: 2px;
+      width: 100%;
+    }
+    .welcome {
+      justify-self: stretch;
+      width: 100%;
+    }
+  }
+</style>

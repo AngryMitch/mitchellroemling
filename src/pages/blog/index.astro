@@ -1,0 +1,88 @@
+---
+import { getCollection } from 'astro:content';
+import WindowLayout from '../../layouts/WindowLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import MenuBar from '../../components/MenuBar.astro';
+
+const posts = (
+  await getCollection('blog', ({ data }) => !data.draft && !data.hidden)
+).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<WindowLayout
+  title="Blog"
+  windowTitle="Blog — My Documents"
+  icon="/icons/blog.svg"
+  description="Writing about art, code, and the spaces in between."
+>
+  <MenuBar slot="menubar" />
+
+  <div class="blog">
+    <header class="intro">
+      <h1 class="font-chrome">My Documents</h1>
+      <a class="rss" href="/rss.xml" title="RSS feed">RSS</a>
+    </header>
+
+    {
+      posts.length === 0 ? (
+        <p class="empty prose">
+          No posts yet. Add a Markdown file to <code>src/content/blog/</code>.
+        </p>
+      ) : (
+        <div class="list">
+          {posts.map((entry) => (
+            <BlogCard entry={entry} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+
+  <Fragment slot="statusbar">
+    <span class="status-cell bevel-sunken">{posts.length} document(s)</span>
+    <span class="status-cell bevel-sunken grow">Blog</span>
+  </Fragment>
+</WindowLayout>
+
+<style>
+  .intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--win-grey);
+  }
+  .intro h1 {
+    font-size: 13px;
+    color: var(--win-navy);
+  }
+  .rss {
+    font-family: var(--font-chrome);
+    font-size: 8px;
+    padding: 4px 8px;
+    color: #fff;
+    background: #e08a1e;
+    text-decoration: none;
+    border: 2px solid;
+    border-color: #f3b765 #8a5410 #8a5410 #f3b765;
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .empty {
+    padding: 1.5rem 0;
+  }
+  .status-cell {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    font-family: var(--font-ui);
+  }
+  .status-cell.grow {
+    flex: 1;
+  }
+</style>

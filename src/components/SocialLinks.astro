@@ -1,0 +1,96 @@
+---
+import { SOCIAL_LINKS } from '../consts';
+
+/**
+ * Social / contact links as icon + label rows (GitHub, LinkedIn, Email).
+ * `variant="rows"` is the stacked About-page style; `variant="inline"` is a
+ * compact horizontal strip for footers.
+ */
+interface Props {
+  variant?: 'rows' | 'inline';
+}
+const { variant = 'rows' } = Astro.props;
+
+const ICONS: Record<string, string> = {
+  github:
+    'M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0C17 5 18 5.3 18 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5Z',
+  linkedin:
+    'M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM2.4 9.5h5.2V22H2.4V9.5Zm7.2 0h5v1.7h.1c.7-1.3 2.4-2.1 4-2.1 4.3 0 5.1 2.6 5.1 6V22h-5.2v-5.7c0-1.4 0-3.1-1.9-3.1s-2.2 1.5-2.2 3V22H9.6V9.5Z',
+  email:
+    'M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm10 7.2L3.3 6H20.7L12 11.2Zm0 2.3L3 7.9V18h18V7.9l-9 5.6Z',
+};
+---
+
+<ul class:list={['social', variant]}>
+  {
+    SOCIAL_LINKS.map((s) => (
+      <li>
+        <a href={s.href} class="social-link" rel="me noopener">
+          <span class="ico bevel-raised" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" role="img">
+              <path d={ICONS[s.icon]} fill="currentColor" />
+            </svg>
+          </span>
+          <span class="meta">
+            <span class="label font-chrome">{s.label}</span>
+            <span class="handle">{s.handle}</span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .social {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+  }
+  .social.inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--win-text);
+    padding: 4px;
+  }
+  .social-link:hover .label {
+    text-decoration: underline;
+  }
+  .social-link:hover .ico {
+    background: var(--win-luna-blue);
+    color: #fff;
+  }
+  .ico {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex: none;
+    background: var(--win-grey);
+    color: var(--win-navy);
+  }
+  .meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  .label {
+    font-size: 9px;
+  }
+  .handle {
+    font-size: 0.85rem;
+    color: #444;
+  }
+  .inline .handle {
+    display: none;
+  }
+</style>

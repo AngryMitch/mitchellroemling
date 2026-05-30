@@ -1,0 +1,144 @@
+---
+import { getCollection } from 'astro:content';
+import WindowLayout from '../../layouts/WindowLayout.astro';
+import ArtworkCard from '../../components/ArtworkCard.astro';
+import MenuBar from '../../components/MenuBar.astro';
+import { ARTWORK_TYPES } from '../../consts';
+
+const artworks = (
+  await getCollection('artwork', ({ data }) => !data.draft && !data.hidden)
+).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const counts = {
+  all: artworks.length,
+  ...Object.fromEntries(
+    ARTWORK_TYPES.map((t) => [t, artworks.filter((a) => a.data.type === t).length]),
+  ),
+} as Record<string, number>;
+---
+
+<WindowLayout
+  title="Artwork"
+  windowTitle="My Artwork"
+  icon="/icons/artwork.svg"
+  description="A gallery of mixed-media artwork — digital, traditional, and photography."
+>
+  <MenuBar slot="menubar" />
+
+  <div class="gallery">
+    <div class="toolbar" role="toolbar" aria-label="Filter artwork by type">
+      <button class="filter font-chrome is-active" data-filter="all" aria-pressed="true">
+        All <span class="count">({counts.all})</span>
+      </button>
+      {
+        ARTWORK_TYPES.map((t) => (
+          <button class="filter font-chrome" data-filter={t} aria-pressed="false">
+            {t} <span class="count">({counts[t] ?? 0})</span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      artworks.length === 0 ? (
+        <p class="empty prose">
+          No artwork yet. Add a Markdown file to{' '}
+          <code>src/content/artwork/</code> to populate this gallery.
+        </p>
+      ) : (
+        <div class="grid" id="art-grid">
+          {artworks.map((entry) => (
+            <ArtworkCard entry={entry} />
+          ))}
+        </div>
+      )
+    }
+    <p class="no-results prose" hidden>No artwork matches that filter.</p>
+  </div>
+
+  <Fragment slot="statusbar">
+    <span class="status-cell bevel-sunken"><span id="shown-count">{counts.all}</span> object(s)</span>
+    <span class="status-cell bevel-sunken grow">My Artwork</span>
+  </Fragment>
+</WindowLayout>
+
+<style>
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--win-grey);
+  }
+  .filter {
+    font-size: 9px;
+    text-transform: capitalize;
+    padding: 6px 10px;
+    color: var(--win-text);
+    background: var(--win-grey);
+    border: 2px solid;
+    border-color: var(--win-light) var(--win-darker) var(--win-darker)
+      var(--win-light);
+  }
+  .filter.is-active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+    background: #b5b5b5;
+  }
+  .count {
+    color: #555;
+  }
+  .filter.is-active .count {
+    color: #333;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 6px;
+  }
+  .empty,
+  .no-results {
+    padding: 1.5rem 0;
+  }
+  .status-cell {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    font-family: var(--font-ui);
+  }
+  .status-cell.grow {
+    flex: 1;
+  }
+</style>
+
+<script>
+  const filters = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter'));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('.art-card'));
+  const shownCount = document.getElementById('shown-count');
+  const noResults = document.querySelector<HTMLElement>('.no-results');
+
+  function apply(type: string) {
+    let shown = 0;
+    cards.forEach((card) => {
+      const match = type === 'all' || card.dataset.type === type;
+      card.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+    if (shownCount) shownCount.textContent = String(shown);
+    if (noResults) noResults.hidden = shown !== 0;
+  }
+
+  filters.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filters.forEach((b) => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-pressed', 'true');
+      apply(btn.dataset.filter ?? 'all');
+    });
+  });
+</script>

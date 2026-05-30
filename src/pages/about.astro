@@ -1,0 +1,234 @@
+---
+import { Image } from 'astro:assets';
+import WindowLayout from '../layouts/WindowLayout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import MenuBar from '../components/MenuBar.astro';
+import { SITE } from '../consts';
+import profile from '../assets/profile.png';
+
+// ---- PLACEHOLDER content — see PLACEHOLDERS.md -------------------------
+const skills = [
+  { name: 'Drawing & Illustration', level: 'Expert' },
+  { name: 'Mixed-media painting', level: 'Advanced' },
+  { name: 'Photography', level: 'Advanced' },
+  { name: 'TypeScript / JavaScript', level: 'Advanced' },
+  { name: 'Astro / Web', level: 'Advanced' },
+  { name: 'Pixel art', level: 'Intermediate' },
+];
+
+// Whole years elapsed since a start year (or full 'YYYY-MM-DD' date).
+// Recomputed on every build, so these never need manual updating.
+function yearsSince(start: number | string): number {
+  const from = typeof start === 'number' ? new Date(start, 0, 1) : new Date(start);
+  const now = new Date();
+  let years = now.getFullYear() - from.getFullYear();
+  const beforeAnniversary =
+    now.getMonth() < from.getMonth() ||
+    (now.getMonth() === from.getMonth() && now.getDate() < from.getDate());
+  if (beforeAnniversary) years--;
+  return years;
+}
+
+// Set the start year/date once. Plain strings stay literal (no auto-update).
+const funStats = [
+  { label: 'Years making art', value: `${yearsSince(2012)}` },
+  { label: 'Years writing code', value: `${yearsSince(2024)}` },
+  { label: 'Cups of coffee consumed', value: '<ERROR />' },
+  { label: 'Sketchbooks filled', value: '3' },
+];
+---
+
+<WindowLayout
+  title="About Me"
+  windowTitle="About Me — Notepad"
+  icon="/icons/about.svg"
+  description={`About ${SITE.name} — ${SITE.tagline}.`}
+>
+  <MenuBar slot="menubar" />
+
+  <div class="about">
+    <div class="tabs" role="tablist" aria-label="About sections">
+      <button id="tab-about" class="tab font-chrome" role="tab" aria-selected="true" aria-controls="panel-about">General</button>
+      <button id="tab-props" class="tab font-chrome" role="tab" aria-selected="false" aria-controls="panel-props">Properties</button>
+    </div>
+
+    <!-- General -->
+    <section id="panel-about" class="panel" role="tabpanel" aria-labelledby="tab-about">
+      <div class="bio-grid">
+        <figure class="portrait">
+          <span class="portrait-frame bevel-sunken">
+            <Image src={profile} alt={`Portrait of ${SITE.name}`} width={200} height={200} class="pixelated" />
+          </span>
+          <figcaption class="font-chrome">{SITE.name}</figcaption>
+        </figure>
+
+        <div class="prose bio">
+          <p>
+            Hi — I'm <strong>{SITE.name}</strong>, a {SITE.tagline.toLowerCase()}
+            based on the internet. I make mixed-media artwork, build small
+            useful things on the web, and write about both.
+          </p>
+          <p>
+            <em>[PLACEHOLDER bio — replace this with a couple of real
+            paragraphs about who you are, what you make, and what you're
+            into. See PLACEHOLDERS.md.]</em>
+          </p>
+          <p>
+            By day I work with code; by night (and most weekends) you'll find
+            me with a sketchbook, a camera, or a half-finished canvas. This
+            site is where those worlds meet.
+          </p>
+        </div>
+      </div>
+
+      <h2 class="section-head font-chrome">Skills</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Skill</th><th>Proficiency</th></tr>
+        </thead>
+        <tbody>
+          {skills.map((s) => (
+            <tr><td>{s.name}</td><td>{s.level}</td></tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h2 class="section-head font-chrome">Find me</h2>
+      <SocialLinks variant="rows" />
+    </section>
+
+    <!-- Properties (easter egg) -->
+    <section id="panel-props" class="panel" role="tabpanel" aria-labelledby="tab-props" hidden>
+      <p class="prose">
+        <strong>{SITE.name} — Properties</strong>
+      </p>
+      <table class="props-table">
+        <tbody>
+          {funStats.map((s) => (
+            <tr><td>{s.label}</td><td>{s.value}</td></tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="hint">Tip: not all stats are scientifically verified. ☕</p>
+    </section>
+  </div>
+
+  <Fragment slot="statusbar">
+    <span class="status-cell bevel-sunken">Ready</span>
+    <span class="status-cell bevel-sunken grow">{SITE.email}</span>
+  </Fragment>
+</WindowLayout>
+
+<style>
+  .tabs {
+    display: flex;
+    gap: 3px;
+    margin-bottom: -2px;
+  }
+  .tab {
+    font-size: 9px;
+    padding: 6px 12px;
+    background: var(--win-grey);
+    border: 2px solid;
+    border-color: var(--win-light) var(--win-dark) var(--win-grey) var(--win-light);
+    border-bottom: none;
+    color: var(--win-text);
+    position: relative;
+    top: 0;
+  }
+  .tab[aria-selected='true'] {
+    background: var(--win-white);
+    z-index: 2;
+    font-weight: bold;
+  }
+  .panel {
+    border-top: 2px solid var(--win-light);
+    padding-top: 1.25rem;
+  }
+  .bio-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .portrait {
+    text-align: center;
+  }
+  .portrait-frame {
+    display: inline-block;
+    padding: 5px;
+    background: var(--win-white);
+  }
+  .portrait figcaption {
+    margin-top: 8px;
+    font-size: 9px;
+    color: var(--win-navy);
+  }
+  .bio {
+    max-width: none;
+  }
+  .section-head {
+    font-size: 12px;
+    margin: 1.75rem 0 0.75rem;
+    color: var(--win-navy);
+  }
+  .props-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    background: var(--win-white);
+  }
+  .props-table th,
+  .props-table td {
+    text-align: left;
+    padding: 7px 10px;
+    border: 1px solid var(--win-grey);
+  }
+  .props-table thead th {
+    background: var(--win-grey);
+    font-family: var(--font-chrome);
+    font-size: 9px;
+  }
+  .props-table tbody tr:nth-child(even) {
+    background: #f3f3f3;
+  }
+  .hint {
+    margin-top: 1rem;
+    font-family: var(--font-body);
+    font-style: italic;
+    color: #555;
+  }
+  .status-cell {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    font-family: var(--font-ui);
+  }
+  .status-cell.grow {
+    flex: 1;
+  }
+  @media (max-width: 560px) {
+    .bio-grid {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+  const panels: Record<string, HTMLElement | null> = {
+    'tab-about': document.getElementById('panel-about'),
+    'tab-props': document.getElementById('panel-props'),
+  };
+  function select(id: string) {
+    tabs.forEach((t) => {
+      const on = t.id === id;
+      t.setAttribute('aria-selected', String(on));
+      const panel = panels[t.id];
+      if (panel) panel.hidden = !on;
+    });
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => select(t.id)));
+</script>

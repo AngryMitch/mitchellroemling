@@ -1,0 +1,38 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Window from '../components/Window.astro';
+
+/**
+ * A content page presented as a single maximised window floating on the
+ * desktop. Pass the window `title` and `icon`; the default slot is the
+ * window body. Optional `menubar` and `statusbar` slots pass through.
+ */
+interface Props {
+  title: string;
+  windowTitle: string;
+  description?: string;
+  icon?: string;
+  ogImage?: string;
+}
+const { title, windowTitle, description, icon, ogImage } = Astro.props;
+
+const hasMenu = Astro.slots.has('menubar');
+const hasStatus = Astro.slots.has('statusbar');
+---
+
+<BaseLayout title={title} description={description} ogImage={ogImage}>
+  <div class="window-page container">
+    <Window title={windowTitle} icon={icon} closeHref="/">
+      {hasMenu && <Fragment slot="menubar"><slot name="menubar" /></Fragment>}
+      <slot />
+      {hasStatus && <Fragment slot="statusbar"><slot name="statusbar" /></Fragment>}
+    </Window>
+  </div>
+</BaseLayout>
+
+<style>
+  .window-page {
+    padding-top: clamp(0.75rem, 4vh, 2.5rem);
+    padding-bottom: 2rem;
+  }
+</style>

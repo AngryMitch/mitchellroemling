@@ -1,0 +1,60 @@
+---
+import Dialog from './Dialog.astro';
+import { SITE } from '../consts';
+
+/**
+ * The classic File / Edit / View / Help menu strip.
+ *
+ * None of these menus actually *do* anything (there's no file system here) —
+ * so for now each one is a sneaky easter egg that pops a snarky dialog.
+ * Drop it into a Window's menubar slot:  <MenuBar slot="menubar" />
+ */
+const items = ['File', 'Edit', 'View', 'Help'] as const;
+const idFor = (label: string) => `mb-${label.toLowerCase()}`;
+---
+
+{
+  items.map((label) => (
+    <button type="button" class="menu-item" data-open-dialog={idFor(label)}>
+      {label}
+    </button>
+  ))
+}
+
+<Dialog id="mb-file" title="File" variant="info">
+  <p>There are no files here — just Markdown and good intentions. 📄</p>
+</Dialog>
+
+<Dialog id="mb-edit" title="Edit" variant="question">
+  <p>Why? Is it not good enough?</p>
+  <p><a href={`mailto:${SITE.email}`}>Tell me what's missing →</a></p>
+</Dialog>
+
+<Dialog id="mb-view" title="View" variant="info">
+  <p>You're already viewing it. With your own two eyes. Incredible. 👀</p>
+</Dialog>
+
+<Dialog id="mb-help" title="Help" variant="warning">
+  <p>Help is on its way… eventually. Have you tried turning it off and on again?</p>
+  <p><a href={`mailto:${SITE.email}`}>Or just ask a human →</a></p>
+</Dialog>
+
+<style>
+  /* Works for <button> menu items: strip native chrome, inherit the pixel
+     font + size from the surrounding .menubar. */
+  .menu-item {
+    padding: 2px 6px;
+    font: inherit;
+    line-height: inherit;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .menu-item:hover,
+  .menu-item:focus-visible {
+    background: var(--win-selection);
+    color: var(--win-selection-text);
+    outline: none;
+  }
+</style>

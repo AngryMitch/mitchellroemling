@@ -1,0 +1,81 @@
+---
+/**
+ * A bevelled 3D Win95 button. Renders an <a> when `href` is supplied,
+ * otherwise a <button>. Default = raised; presses to a depressed state.
+ */
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'default' | 'primary';
+  disabled?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+const {
+  href,
+  type = 'button',
+  variant = 'default',
+  disabled = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const tagProps = href
+  ? { href, ...rest }
+  : { type, disabled, ...rest };
+---
+
+<Tag class:list={['btn', 'font-chrome', `btn-${variant}`, className]} {...tagProps}>
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 4px 14px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--win-text);
+    text-decoration: none;
+    background: var(--win-grey);
+    border: 2px solid;
+    border-color: var(--win-light) var(--win-darker) var(--win-darker)
+      var(--win-light);
+    box-shadow: inset 1px 1px 0 var(--win-grey-light),
+      inset -1px -1px 0 var(--win-dark);
+    user-select: none;
+  }
+  .btn:hover {
+    background: #cacaca;
+  }
+  .btn:active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+    box-shadow: inset 1px 1px 0 var(--win-dark);
+    padding: 5px 13px 3px 15px;
+  }
+  .btn:focus-visible {
+    outline: 1px dotted var(--win-text);
+    outline-offset: -5px;
+  }
+  .btn-primary {
+    color: #fff;
+    background: var(--win-luna-green);
+    border-color: var(--win-luna-green-2) #1c361c #1c361c var(--win-luna-green-2);
+    box-shadow: none;
+  }
+  .btn-primary:hover {
+    background: var(--win-luna-green-2);
+  }
+  .btn[disabled] {
+    color: var(--win-text-disabled);
+    text-shadow: 1px 1px 0 var(--win-light);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>

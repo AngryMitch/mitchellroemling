@@ -1,0 +1,330 @@
+/* =====================================================================
+   Mitchell Roemling — Windows 95/XP design system
+   Global tokens, reset, typography, and reusable chrome utilities.
+   ===================================================================== */
+
+/* ----- Design tokens ------------------------------------------------ */
+:root {
+  /* Core Win95 greys */
+  --win-grey: #c0c0c0;
+  --win-grey-light: #dfdfdf;
+  --win-dark: #808080;
+  --win-darker: #404040; /* outer bevel shadow */
+  --win-light: #ffffff;
+
+  /* Title bar / accents */
+  --win-navy: #000080; /* classic Win95 active title bar */
+  --win-navy-2: #1084d0; /* gradient end for title bars */
+  --win-luna-blue: #1f6fbf; /* XP Luna accent */
+  --win-luna-blue-2: #2a8ae0;
+  --win-luna-green: #3a6e3a; /* start button / success */
+  --win-luna-green-2: #57a05a;
+
+  /* Content + text */
+  --win-text: #000000;
+  --win-text-disabled: #808080;
+  --win-white: #ffffff;
+  --win-selection: #000080;
+  --win-selection-text: #ffffff;
+  --win-link: #0000cc;
+  --win-link-visited: #551a8b;
+
+  /* Status colours */
+  --status-active: #1f8b24;
+  --status-shipped: #1f6fbf;
+  --status-archived: #808080;
+
+  /* BSOD */
+  --bsod-blue: #0000aa;
+
+  /* Tooltip */
+  --tooltip-bg: #ffffe1;
+  --tooltip-border: #000000;
+
+  /* Fonts */
+  --font-chrome: 'Press Start 2P', 'Silkscreen', 'Courier New', monospace;
+  --font-body: Georgia, 'Times New Roman', 'Times', serif;
+  --font-ui: 'Tahoma', 'Segoe UI', system-ui, sans-serif; /* in-window labels */
+  --font-mono: 'Courier New', 'Consolas', monospace;
+
+  /* Sizing */
+  --bevel: 2px;
+  --taskbar-h: 40px;
+  --titlebar-h: 28px;
+  --radius-xp: 4px;
+
+  /* Motion */
+  --transition: 120ms ease;
+
+  color-scheme: light;
+}
+
+/* ----- Reset -------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--win-text);
+  line-height: 1.5;
+}
+
+img,
+picture,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--win-link);
+}
+a:visited {
+  color: var(--win-link-visited);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style-position: inside;
+}
+
+::selection {
+  background: var(--win-selection);
+  color: var(--win-selection-text);
+}
+
+:focus-visible {
+  outline: 2px dotted var(--win-text);
+  outline-offset: 1px;
+}
+
+/* Render pixel art crisply, but only where we opt in. */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ----- Bevelled border utilities ------------------------------------ */
+/* Raised: buttons, window chrome, taskbar, panels that "stick out". */
+.bevel-raised {
+  border-style: solid;
+  border-width: var(--bevel);
+  border-color: var(--win-light) var(--win-darker) var(--win-darker)
+    var(--win-light);
+  box-shadow: inset 1px 1px 0 var(--win-grey-light),
+    inset -1px -1px 0 var(--win-dark);
+  background: var(--win-grey);
+}
+
+/* Depressed: inset panels, recessed content wells, active buttons. */
+.bevel-sunken {
+  border-style: solid;
+  border-width: var(--bevel);
+  border-color: var(--win-darker) var(--win-light) var(--win-light)
+    var(--win-darker);
+  box-shadow: inset 1px 1px 0 var(--win-dark),
+    inset -1px -1px 0 var(--win-grey-light);
+  background: var(--win-white);
+}
+
+/* Thin single-line groove used for separators / field outlines. */
+.bevel-thin {
+  border: 1px solid;
+  border-color: var(--win-dark) var(--win-light) var(--win-light)
+    var(--win-dark);
+}
+
+/* ----- Typography helpers ------------------------------------------- */
+.font-chrome {
+  font-family: var(--font-chrome);
+  letter-spacing: 0;
+  /* Pixel fonts render best with crisp anti-aliasing off where supported. */
+  -webkit-font-smoothing: none;
+}
+
+/* Readable long-form content inside a white window body. */
+.prose {
+  font-family: var(--font-body);
+  font-size: 1.0625rem; /* ~17px */
+  line-height: 1.7;
+  color: var(--win-text);
+  background: var(--win-white);
+  max-width: 68ch;
+}
+.prose > * + * {
+  margin-top: 1rem;
+}
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-family: var(--font-body);
+  line-height: 1.25;
+  margin-top: 1.6em;
+}
+.prose h1 {
+  font-size: 1.9rem;
+}
+.prose h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--win-grey);
+  padding-bottom: 0.2em;
+}
+.prose h3 {
+  font-size: 1.25rem;
+}
+.prose a {
+  text-decoration: underline;
+}
+.prose img {
+  margin: 1.25rem 0;
+  border: 2px solid;
+  border-color: var(--win-darker) var(--win-light) var(--win-light)
+    var(--win-darker);
+}
+.prose blockquote {
+  border-left: 4px solid var(--win-navy);
+  padding-left: 1rem;
+  color: #333;
+  font-style: italic;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  list-style-position: outside;
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: #f0f0f0;
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--win-dark);
+}
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  /* recessed inset code well */
+  border: 2px solid;
+  border-color: var(--win-darker) var(--win-light) var(--win-light)
+    var(--win-darker);
+  background: #ffffff;
+}
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--win-dark);
+  border-bottom: 1px solid var(--win-light);
+  margin: 1.5rem 0;
+}
+
+/* ----- Custom scrollbars (Win95 chunky style) ----------------------- */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: var(--win-grey) var(--win-grey-light);
+}
+::-webkit-scrollbar {
+  width: 17px;
+  height: 17px;
+}
+::-webkit-scrollbar-track {
+  background: var(--win-grey-light);
+  border: 1px solid var(--win-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--win-grey);
+  border: 2px solid;
+  border-color: var(--win-light) var(--win-darker) var(--win-darker)
+    var(--win-light);
+}
+::-webkit-scrollbar-button {
+  background: var(--win-grey);
+  border: 2px solid;
+  border-color: var(--win-light) var(--win-darker) var(--win-darker)
+    var(--win-light);
+  display: block;
+  height: 17px;
+  width: 17px;
+}
+::-webkit-scrollbar-corner {
+  background: var(--win-grey);
+}
+
+/* ----- Visually hidden (a11y) --------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 1000;
+  padding: 8px 12px;
+  background: var(--win-grey);
+  color: var(--win-text);
+  font-family: var(--font-chrome);
+  font-size: 10px;
+  transition: top var(--transition);
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* ----- Layout helpers ----------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: clamp(0.75rem, 3vw, 2rem);
+}
+
+.stack > * + * {
+  margin-top: var(--stack-gap, 1rem);
+}
+
+/* ----- Reduced motion ----------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

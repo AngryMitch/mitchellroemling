@@ -1,0 +1,112 @@
+---
+import WindowLayout from '../layouts/WindowLayout.astro';
+import Button from '../components/Button.astro';
+import MenuBar from '../components/MenuBar.astro';
+
+// PLACEHOLDER easter-egg "deleted files" — swap for your own jokes.
+const trash = [
+  { name: 'old_portfolio_v1.html', size: '14 KB', note: 'tables for layout… yikes' },
+  { name: 'untitled-final-FINAL-2.psd', size: '212 MB', note: 'the real final, probably' },
+  { name: 'todo.txt', size: '1 KB', note: 'mostly unchecked' },
+  { name: 'tax_stuff.zip', size: '?', note: 'do NOT empty' },
+];
+---
+
+<WindowLayout
+  title="Recycle Bin"
+  windowTitle="Recycle Bin"
+  icon="/icons/recycle.svg"
+  description="A peek inside the Recycle Bin. Mostly junk."
+>
+  <MenuBar slot="menubar" />
+
+  <div class="bin">
+    <p class="prose intro">
+      You found the Recycle Bin. 🗑️ A few things ended up in here. Don't worry —
+      nothing important. (Right?)
+    </p>
+
+    <ul class="files">
+      {
+        trash.map((f) => (
+          <li class="file">
+            <img src="/icons/blog.svg" alt="" class="pixelated" width="22" height="22" />
+            <span class="fname">{f.name}</span>
+            <span class="fsize">{f.size}</span>
+            <span class="fnote">{f.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="actions">
+      <Button id="empty-btn">🗑️ Empty Recycle Bin</Button>
+      <Button href="/">‹ Back to Desktop</Button>
+    </div>
+
+    <p id="empty-msg" class="prose msg" hidden>
+      <strong>Are you sure?</strong> …just kidding, these are placeholders. Nothing
+      was deleted. Go make something instead. ✨
+    </p>
+  </div>
+</WindowLayout>
+
+<style>
+  .intro {
+    margin-bottom: 1rem;
+  }
+  .files {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.25rem;
+    border: 2px solid;
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+  }
+  .file {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'icon name size' 'icon note note';
+    gap: 0 10px;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e3e3e3;
+    font-family: var(--font-ui);
+  }
+  .file img {
+    grid-area: icon;
+  }
+  .fname {
+    grid-area: name;
+    font-weight: bold;
+  }
+  .fsize {
+    grid-area: size;
+    color: #555;
+    font-size: 0.85rem;
+  }
+  .fnote {
+    grid-area: note;
+    color: #777;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .msg {
+    margin-top: 1.25rem;
+    padding: 0.9rem;
+    background: var(--tooltip-bg);
+    border: 1px solid var(--tooltip-border);
+  }
+</style>
+
+<script>
+  document.getElementById('empty-btn')?.addEventListener('click', () => {
+    const msg = document.getElementById('empty-msg');
+    if (msg) msg.hidden = false;
+  });
+</script>

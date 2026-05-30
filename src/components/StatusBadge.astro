@@ -1,0 +1,39 @@
+---
+import type { ProjectStatus } from '../consts';
+
+/** Coloured status pill for projects: Active / Shipped / Paused / Archived. */
+interface Props {
+  status: ProjectStatus;
+}
+const { status } = Astro.props;
+
+const meta: Record<ProjectStatus, { label: string; color: string; dot: string }> = {
+  active: { label: 'Active', color: 'var(--status-active)', dot: '●' },
+  shipped: { label: 'Shipped', color: 'var(--status-shipped)', dot: '●' },
+  paused: { label: 'Paused', color: 'var(--status-archived)', dot: '●' },
+  archived: { label: 'Archived', color: 'var(--status-archived)', dot: '●' },
+};
+const { label, color, dot } = meta[status];
+---
+
+<span class="badge font-chrome bevel-thin" style={`--badge-color:${color}`}>
+  <span class="dot" aria-hidden="true">{dot}</span>{label}
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+    font-size: 8px;
+    line-height: 1;
+    background: var(--win-grey);
+    color: var(--win-text);
+    white-space: nowrap;
+  }
+  .dot {
+    color: var(--badge-color);
+    font-size: 9px;
+  }
+</style>

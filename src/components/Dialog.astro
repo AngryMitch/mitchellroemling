@@ -1,0 +1,222 @@
+---
+/**
+ * A modal Win95-style dialog box. Hidden by default.
+ *
+ * Open it from anywhere with a trigger:
+ *   <button data-open-dialog="my-dialog">…</button>
+ * Close via the OK button, the title-bar ✕, a backdrop click, or Escape.
+ *
+ * `variant` picks the little icon glyph next to the message:
+ *   question (?) · info (i) · warning (!) · none
+ */
+interface Props {
+  id: string;
+  title: string;
+  variant?: 'question' | 'info' | 'warning' | 'none';
+}
+const { id, title, variant = 'question' } = Astro.props;
+
+const glyphs = { question: '?', info: 'i', warning: '!', none: '' } as const;
+const glyph = glyphs[variant];
+---
+
+<div class="dialog-overlay" id={id} hidden>
+  <div
+    class="dialog bevel-raised"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby={`${id}-title`}
+    aria-describedby={`${id}-body`}
+  >
+    <div class="dialog-title font-chrome">
+      <span id={`${id}-title`} class="dt-text">{title}</span>
+      <button class="dt-close bevel-raised" data-close-dialog aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-content">
+      {glyph && <span class:list={['dlg-icon', `is-${variant}`]} aria-hidden="true">{glyph}</span>}
+      <div id={`${id}-body`} class="dialog-body">
+        <slot />
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <button class="dlg-btn bevel-raised font-chrome" data-close-dialog autofocus>OK</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.25);
+  }
+  .dialog-overlay[hidden] {
+    display: none;
+  }
+  .dialog {
+    width: min(380px, 92vw);
+    background: var(--win-grey);
+    padding: 3px;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+    animation: dlg-in 120ms ease;
+  }
+  @keyframes dlg-in {
+    from {
+      transform: scale(0.94);
+      opacity: 0.4;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dialog {
+      animation: none;
+    }
+  }
+  .dialog-title {
+    height: var(--titlebar-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 4px 3px 6px;
+    color: #fff;
+    background: linear-gradient(
+      90deg,
+      var(--win-navy) 0%,
+      var(--win-luna-blue) 70%,
+      var(--win-navy-2) 100%
+    );
+  }
+  .dt-text {
+    font-size: 10px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  .dt-close {
+    width: 20px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--win-text);
+    background: var(--win-grey);
+  }
+  .dt-close:hover {
+    background: #e04a4a;
+    color: #fff;
+  }
+  .dialog-content {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--win-grey);
+    padding: 20px 18px 16px;
+  }
+  .dlg-icon {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: bold;
+    font-style: italic;
+    color: #fff;
+    background: var(--win-luna-blue);
+    border: 2px solid;
+    border-color: var(--win-light) var(--win-darker) var(--win-darker) var(--win-light);
+  }
+  .dlg-icon.is-warning {
+    background: #e0b020;
+    color: #000;
+  }
+  .dlg-icon.is-info {
+    background: var(--win-navy);
+  }
+  .dialog-body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--win-text);
+  }
+  .dialog-body :global(p) {
+    margin: 0 0 0.5rem;
+  }
+  .dialog-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .dialog-body :global(a) {
+    color: var(--win-link);
+    font-weight: bold;
+  }
+  .dialog-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--win-grey);
+  }
+  .dlg-btn {
+    min-width: 80px;
+    min-height: 26px;
+    padding: 4px 16px;
+    font-size: 10px;
+    color: var(--win-text);
+    background: var(--win-grey);
+  }
+  .dlg-btn:active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light) var(--win-darker);
+  }
+  .dlg-btn:focus-visible {
+    outline: 1px dotted var(--win-text);
+    outline-offset: -5px;
+  }
+</style>
+
+<script>
+  // Delegated, runs once per page (Astro dedupes identical component scripts).
+  function closeDialog(overlay: HTMLElement) {
+    overlay.hidden = true;
+    const opener = document.querySelector<HTMLElement>('[data-dialog-opener]');
+    opener?.removeAttribute('data-dialog-opener');
+    opener?.focus();
+  }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    const opener = target.closest<HTMLElement>('[data-open-dialog]');
+    if (opener) {
+      const id = opener.getAttribute('data-open-dialog');
+      const overlay = id && document.getElementById(id);
+      if (overlay) {
+        opener.setAttribute('data-dialog-opener', '');
+        overlay.hidden = false;
+        overlay.querySelector<HTMLElement>('[autofocus]')?.focus();
+      }
+      return;
+    }
+
+    if (target.closest('[data-close-dialog]')) {
+      const overlay = target.closest<HTMLElement>('.dialog-overlay');
+      if (overlay) closeDialog(overlay);
+      return;
+    }
+
+    // Backdrop click closes.
+    if (target.classList.contains('dialog-overlay')) {
+      closeDialog(target);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document
+      .querySelectorAll<HTMLElement>('.dialog-overlay:not([hidden])')
+      .forEach((overlay) => closeDialog(overlay));
+  });
+</script>

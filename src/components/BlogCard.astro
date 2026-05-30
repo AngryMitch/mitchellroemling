@@ -1,0 +1,132 @@
+---
+import { Image } from 'astro:assets';
+import { getEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+/**
+ * A blog post preview row. If the post has no cover but references artwork,
+ * the first related artwork image is used as the thumbnail — so posts can
+ * "pull" artwork photos automatically.
+ */
+interface Props {
+  entry: CollectionEntry<'blog'>;
+}
+const { entry } = Astro.props;
+const { data } = entry;
+
+// Resolve a thumbnail: explicit cover, else first related artwork's image.
+let thumb = data.cover ?? null;
+if (!thumb && data.relatedArtwork.length > 0) {
+  const art = await getEntry(data.relatedArtwork[0]);
+  thumb = art?.data.thumbnail ?? art?.data.image ?? null;
+}
+
+const dateStr = data.date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="blog-card bevel-thin">
+  <a class="link" href={`/blog/${entry.id}`}>
+    {
+      thumb && (
+        <span class="thumb-wrap bevel-sunken">
+          <Image
+            src={thumb}
+            alt=""
+            width={240}
+            height={160}
+            class="thumb"
+          />
+        </span>
+      )
+    }
+    <span class="body">
+      <span class="meta font-chrome">{dateStr}</span>
+      <h3 class="title">{data.title}</h3>
+      <p class="desc">{data.description}</p>
+      {
+        data.tags.length > 0 && (
+          <span class="tags">
+            {data.tags.map((t) => (
+              <span class="tag">#{t}</span>
+            ))}
+          </span>
+        )
+      }
+    </span>
+  </a>
+</article>
+
+<style>
+  .blog-card {
+    background: var(--win-white);
+  }
+  .link {
+    display: flex;
+    gap: 14px;
+    padding: 12px;
+    text-decoration: none;
+    color: var(--win-text);
+    align-items: flex-start;
+  }
+  .blog-card:hover {
+    outline: 2px solid var(--win-luna-blue);
+  }
+  .thumb-wrap {
+    flex: none;
+    width: 140px;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    padding: 3px;
+    background: var(--win-white);
+  }
+  .thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .meta {
+    font-size: 8px;
+    color: var(--win-navy);
+  }
+  .title {
+    font-family: var(--font-body);
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+  .link:hover .title {
+    text-decoration: underline;
+  }
+  .desc {
+    font-family: var(--font-body);
+    color: #333;
+    line-height: 1.5;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .tag {
+    font-size: 0.75rem;
+    color: #555;
+  }
+  @media (max-width: 540px) {
+    .thumb-wrap {
+      width: 96px;
+    }
+    .title {
+      font-size: 1.1rem;
+    }
+  }
+</style>

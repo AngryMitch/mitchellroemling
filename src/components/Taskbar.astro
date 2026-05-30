@@ -1,0 +1,234 @@
+---
+import StartMenu from './StartMenu.astro';
+import { NAV_ITEMS } from '../consts';
+
+/**
+ * Fixed bottom taskbar: Start button → StartMenu, a button for the active
+ * "window" (current page), and a live clock island on the right.
+ */
+const pathname = Astro.url.pathname;
+const active =
+  NAV_ITEMS.find((n) => pathname === n.match || pathname.startsWith(n.match + '/')) ??
+  null;
+const activeLabel = active ? active.label : pathname === '/' ? 'Desktop' : 'Window';
+const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
+---
+
+<footer class="taskbar bevel-raised">
+  <button
+    id="start-button"
+    type="button"
+    class="start-btn font-chrome"
+    aria-haspopup="menu"
+    aria-controls="start-menu"
+    aria-expanded="false"
+  >
+    <img src="/icons/logo.svg" alt="" class="pixelated" width="20" height="20" />
+    <span>Start</span>
+  </button>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <div class="task-buttons">
+    <button
+      type="button"
+      class="task-btn active"
+      data-task-btn
+      aria-pressed="true"
+      title={`${activeLabel} — click to minimise / restore`}
+    >
+      <img src={activeIcon} alt="" class="pixelated" width="16" height="16" />
+      <span class="task-label">{activeLabel}</span>
+    </button>
+  </div>
+
+  <div class="tray bevel-sunken">
+    <time id="taskbar-clock" class="clock font-chrome" datetime="">--:-- --</time>
+  </div>
+
+  <StartMenu />
+</footer>
+
+<style>
+  .taskbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 150;
+    height: var(--taskbar-h);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 4px;
+    background: var(--win-grey);
+  }
+  .start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--win-text);
+    background: var(--win-grey);
+    border: 2px solid;
+    border-color: var(--win-light) var(--win-darker) var(--win-darker)
+      var(--win-light);
+  }
+  .start-btn[aria-expanded='true'],
+  .start-btn:active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+  }
+  .divider {
+    width: 2px;
+    align-self: stretch;
+    margin: 3px 2px;
+    border-left: 1px solid var(--win-dark);
+    border-right: 1px solid var(--win-light);
+  }
+  .task-buttons {
+    flex: 1;
+    display: flex;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .task-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    max-width: 220px;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--win-text);
+    cursor: pointer;
+    text-align: left;
+    /* "pressed" (open window) look by default */
+    border: 2px solid;
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+    background: #b8b8b8;
+  }
+  /* Minimised: the button pops out to a raised, unpressed state. */
+  .task-btn.is-minimized {
+    border-color: var(--win-light) var(--win-darker) var(--win-darker)
+      var(--win-light);
+    background: var(--win-grey);
+  }
+  .task-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tray {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 10px;
+  }
+  .clock {
+    font-size: 10px;
+    color: var(--win-text);
+    white-space: nowrap;
+  }
+  @media (max-width: 520px) {
+    .task-label {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // ---- Start menu toggle -------------------------------------------------
+  const startBtn = document.getElementById('start-button');
+  const startMenu = document.getElementById('start-menu');
+
+  function setMenu(open: boolean) {
+    if (!startBtn || !startMenu) return;
+    startBtn.setAttribute('aria-expanded', String(open));
+    startMenu.toggleAttribute('hidden', !open);
+  }
+
+  startBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = startBtn.getAttribute('aria-expanded') === 'true';
+    setMenu(!open);
+  });
+
+  // Close on outside click or Escape.
+  document.addEventListener('click', (e) => {
+    if (!startMenu || startMenu.hasAttribute('hidden')) return;
+    const target = e.target as Node;
+    if (!startMenu.contains(target) && target !== startBtn) setMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setMenu(false);
+  });
+
+  // ---- Live clock --------------------------------------------------------
+  const clock = document.getElementById('taskbar-clock') as HTMLTimeElement | null;
+  function tick() {
+    if (!clock) return;
+    const now = new Date();
+    clock.dateTime = now.toISOString();
+    clock.textContent = now.toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
+  tick();
+  window.setInterval(tick, 1000 * 15);
+
+  // ---- Minimise the page window to / from the tray -----------------------
+  const pageWindow = document.querySelector<HTMLElement>('.window-page .window');
+  const taskButton = document.querySelector<HTMLElement>('[data-task-btn]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function setTaskMinimized(min: boolean) {
+    taskButton?.classList.toggle('is-minimized', min);
+    taskButton?.setAttribute('aria-pressed', String(!min));
+  }
+
+  function minimizeWindow() {
+    if (!pageWindow) return;
+    setTaskMinimized(true);
+    if (reduceMotion) {
+      pageWindow.classList.add('is-minimized');
+      return;
+    }
+    pageWindow.classList.add('is-minimizing');
+    window.setTimeout(() => {
+      pageWindow.classList.remove('is-minimizing');
+      pageWindow.classList.add('is-minimized');
+    }, 180);
+  }
+
+  function restoreWindow() {
+    if (!pageWindow) return;
+    setTaskMinimized(false);
+    pageWindow.classList.remove('is-minimized');
+    if (!reduceMotion) {
+      pageWindow.classList.add('is-restoring');
+      window.setTimeout(() => pageWindow.classList.remove('is-restoring'), 180);
+    }
+    pageWindow.scrollIntoView({ block: 'nearest' });
+  }
+
+  if (pageWindow && taskButton) {
+    // The window's minimise (─) control sends it to the tray.
+    pageWindow
+      .querySelectorAll<HTMLElement>('[data-min]')
+      .forEach((btn) => btn.addEventListener('click', minimizeWindow));
+    // The taskbar button toggles minimised ⇄ restored.
+    taskButton.addEventListener('click', () => {
+      if (pageWindow.classList.contains('is-minimized')) restoreWindow();
+      else minimizeWindow();
+    });
+  }
+</script>

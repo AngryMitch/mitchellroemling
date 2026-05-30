@@ -1,0 +1,68 @@
+---
+/**
+ * The minimise / maximise / close cluster shown at the right of a TitleBar.
+ * Windows are static (no real drag/resize), so these are mostly decorative —
+ * except Close, which navigates to `closeHref` (defaults to the desktop).
+ */
+interface Props {
+  closeHref?: string;
+}
+const { closeHref = '/' } = Astro.props;
+---
+
+<div class="controls font-chrome" aria-hidden="false">
+  <button type="button" class="ctrl bevel-raised" data-min aria-label="Minimise"
+    >_</button
+  >
+  <button
+    type="button"
+    class="ctrl bevel-raised"
+    data-max
+    aria-label="Maximise"
+    >▢</button
+  >
+  <a class="ctrl ctrl-close bevel-raised" href={closeHref} aria-label="Close window"
+    >✕</a
+  >
+</div>
+
+<style>
+  .controls {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .ctrl {
+    width: 20px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--win-text);
+    text-decoration: none;
+    background: var(--win-grey);
+    padding: 0;
+  }
+  .ctrl:active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light)
+      var(--win-darker);
+    box-shadow: inset 1px 1px 0 var(--win-dark);
+  }
+  .ctrl-close {
+    font-weight: bold;
+  }
+  .ctrl-close:hover {
+    background: #e04a4a;
+    color: #fff;
+  }
+</style>
+<script>
+  // The minimise button (data-min) is wired up by the Taskbar, which owns the
+  // tray button it collapses into. Here we only handle maximise.
+  document.querySelectorAll<HTMLButtonElement>('[data-max]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      btn.closest<HTMLElement>('.window')?.classList.toggle('is-maximised');
+    });
+  });
+</script>

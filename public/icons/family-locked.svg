@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- folder -->
+  <path d="M3 9 L3 6 L13 6 L16 9 Z" fill="#c9a227" stroke="#000" stroke-width="1"/>
+  <rect x="3" y="9" width="26" height="18" fill="#f6c64a" stroke="#000" stroke-width="1"/>
+  <rect x="3" y="12" width="26" height="15" fill="#ffd86b" stroke="#000" stroke-width="1"/>
+  <!-- padlock badge -->
+  <rect x="14" y="15" width="13" height="11" fill="#b0b0b0" stroke="#000" stroke-width="1"/>
+  <rect x="14" y="15" width="13" height="11" fill="none" stroke="#fff" stroke-width="0.5"/>
+  <path d="M17 15 v-2 a3.5 3.5 0 0 1 7 0 v2" fill="none" stroke="#404040" stroke-width="2"/>
+  <rect x="19" y="18" width="3" height="5" fill="#404040"/>
+</svg>
