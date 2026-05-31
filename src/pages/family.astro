@@ -205,121 +205,157 @@ import encData from '../generated/family.enc.json';
 <script>
   type Page = { slug: string; title: string; html: string };
 
-  const KEY_FLAG = 'mr:family';
-  const KEY_PASS = 'mr:familyKey';
+  function initFamilyPage() {
+    const KEY_FLAG = 'mr:family';
+    const KEY_PASS = 'mr:familyKey';
 
-  const lockedEl = document.getElementById('family-locked')!;
-  const unlockedEl = document.getElementById('family-unlocked')!;
-  const filesEl = document.getElementById('family-files')!;
-  const contentEl = document.getElementById('family-content')!;
-  const statusEl = document.getElementById('family-status')!;
-  const form = document.getElementById('unlock-form') as HTMLFormElement;
-  const input = document.getElementById('passcode-input') as HTMLInputElement;
-  const errorEl = document.getElementById('unlock-error')!;
-  const workingEl = document.getElementById('unlock-working')!;
-  const lockBtn = document.getElementById('lock-btn')!;
-  const cipherEl = document.getElementById('family-cipher')!;
+    const lockedEl = document.getElementById('family-locked');
+    const unlockedEl = document.getElementById('family-unlocked');
+    const filesEl = document.getElementById('family-files');
+    const contentEl = document.getElementById('family-content');
+    const statusEl = document.getElementById('family-status');
+    const form = document.getElementById('unlock-form') as HTMLFormElement | null;
+    const input = document.getElementById('passcode-input') as HTMLInputElement | null;
+    const errorEl = document.getElementById('unlock-error');
+    const workingEl = document.getElementById('unlock-working');
+    const lockBtn = document.getElementById('lock-btn');
+    const cipherEl = document.getElementById('family-cipher');
 
-  const cfg = JSON.parse(cipherEl.textContent || '{}');
-  let pages: Page[] = [];
-
-  const b64ToBytes = (b64: string) =>
-    Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-
-  async function decrypt(passcode: string): Promise<Page[]> {
-    const salt = b64ToBytes(cfg.kdf.salt);
-    const iv = b64ToBytes(cfg.cipher.iv);
-    const data = b64ToBytes(cfg.data);
-    const baseKey = await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(passcode),
-      'PBKDF2',
-      false,
-      ['deriveKey'],
-    );
-    const key = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: cfg.kdf.iterations, hash: cfg.kdf.hash },
-      baseKey,
-      { name: 'AES-GCM', length: 256 },
-      false,
-      ['decrypt'],
-    );
-    // Throws if the passcode is wrong (GCM auth tag fails), which is my check.
-    const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
-    const payload = JSON.parse(new TextDecoder().decode(buf));
-    return payload.pages as Page[];
-  }
-
-  function selectPage(i: number) {
-    Array.from(filesEl.children).forEach((c, idx) =>
-      c.classList.toggle('active', idx === i),
-    );
-    contentEl.innerHTML = pages[i].html;
-  }
-
-  function showUnlocked(loaded: Page[]) {
-    pages = loaded;
-    filesEl.innerHTML = '';
-    pages.forEach((p, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'file-btn';
-      btn.type = 'button';
-      const img = document.createElement('img');
-      img.src = '/icons/blog.svg';
-      img.alt = '';
-      img.className = 'pixelated';
-      const span = document.createElement('span');
-      span.textContent = p.title;
-      btn.append(img, span);
-      btn.addEventListener('click', () => selectPage(i));
-      filesEl.appendChild(btn);
-    });
-    selectPage(0);
-    lockedEl.hidden = true;
-    unlockedEl.hidden = false;
-    statusEl.textContent = `Unlocked, ${pages.length} document(s)`;
-    document.documentElement.classList.add('family-mode');
-  }
-
-  async function tryUnlock(passcode: string, remember: boolean) {
-    errorEl.hidden = true;
-    workingEl.hidden = false;
-    try {
-      const loaded = await decrypt(passcode);
-      if (remember) {
-        sessionStorage.setItem(KEY_FLAG, '1');
-        sessionStorage.setItem(KEY_PASS, passcode);
-      }
-      showUnlocked(loaded);
-    } catch {
-      errorEl.hidden = false;
-      input.select();
-    } finally {
-      workingEl.hidden = true;
+    if (
+      !lockedEl ||
+      !unlockedEl ||
+      !filesEl ||
+      !contentEl ||
+      !statusEl ||
+      !form ||
+      !input ||
+      !errorEl ||
+      !workingEl ||
+      !lockBtn ||
+      !cipherEl ||
+      form.dataset.familyReady
+    ) {
+      return;
     }
+    form.dataset.familyReady = 'true';
+
+    const locked = lockedEl as HTMLElement;
+    const unlocked = unlockedEl as HTMLElement;
+    const files = filesEl as HTMLElement;
+    const content = contentEl as HTMLElement;
+    const status = statusEl as HTMLElement;
+    const passcodeInput = input as HTMLInputElement;
+    const error = errorEl as HTMLElement;
+    const working = workingEl as HTMLElement;
+    const cipher = cipherEl as HTMLElement;
+
+    const cfg = JSON.parse(cipher.textContent || '{}');
+    let pages: Page[] = [];
+
+    const b64ToBytes = (b64: string) =>
+      Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+    async function decrypt(passcode: string): Promise<Page[]> {
+      const salt = b64ToBytes(cfg.kdf.salt);
+      const iv = b64ToBytes(cfg.cipher.iv);
+      const data = b64ToBytes(cfg.data);
+      const baseKey = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(passcode),
+        'PBKDF2',
+        false,
+        ['deriveKey'],
+      );
+      const key = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: cfg.kdf.iterations, hash: cfg.kdf.hash },
+        baseKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt'],
+      );
+      // Throws if the passcode is wrong (GCM auth tag fails), which is my check.
+      const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+      const payload = JSON.parse(new TextDecoder().decode(buf));
+      return payload.pages as Page[];
+    }
+
+    function selectPage(i: number) {
+      Array.from(files.children).forEach((c, idx) =>
+        c.classList.toggle('active', idx === i),
+      );
+      content.innerHTML = pages[i].html;
+    }
+
+    function showUnlocked(loaded: Page[]) {
+      pages = loaded;
+      files.innerHTML = '';
+      pages.forEach((p, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'file-btn';
+        btn.type = 'button';
+        const img = document.createElement('img');
+        img.src = '/icons/blog.svg';
+        img.alt = '';
+        img.className = 'pixelated';
+        const span = document.createElement('span');
+        span.textContent = p.title;
+        btn.append(img, span);
+        btn.addEventListener('click', () => selectPage(i));
+        files.appendChild(btn);
+      });
+      selectPage(0);
+      locked.hidden = true;
+      unlocked.hidden = false;
+      status.textContent = `Unlocked, ${pages.length} document(s)`;
+      document.documentElement.classList.add('family-mode');
+    }
+
+    async function tryUnlock(passcode: string, remember: boolean) {
+      error.hidden = true;
+      working.hidden = false;
+      try {
+        const loaded = await decrypt(passcode);
+        if (remember) {
+          sessionStorage.setItem(KEY_FLAG, '1');
+          sessionStorage.setItem(KEY_PASS, passcode);
+        }
+        showUnlocked(loaded);
+      } catch {
+        error.hidden = false;
+        passcodeInput.select();
+      } finally {
+        working.hidden = true;
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = passcodeInput.value.trim();
+      if (code) tryUnlock(code, true);
+    });
+
+    lockBtn.addEventListener('click', () => {
+      sessionStorage.removeItem(KEY_FLAG);
+      sessionStorage.removeItem(KEY_PASS);
+      document.documentElement.classList.remove('family-mode');
+      pages = [];
+      content.innerHTML = '';
+      files.innerHTML = '';
+      unlocked.hidden = true;
+      locked.hidden = false;
+      status.textContent = 'Locked';
+      passcodeInput.value = '';
+      passcodeInput.focus();
+    });
+
+    // Already in "family mode" this session? Re-open without re-typing.
+    const saved = sessionStorage.getItem(KEY_PASS);
+    if (saved) tryUnlock(saved, false);
   }
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const code = input.value.trim();
-    if (code) tryUnlock(code, true);
-  });
-
-  lockBtn.addEventListener('click', () => {
-    sessionStorage.removeItem(KEY_FLAG);
-    sessionStorage.removeItem(KEY_PASS);
-    document.documentElement.classList.remove('family-mode');
-    pages = [];
-    contentEl.innerHTML = '';
-    filesEl.innerHTML = '';
-    unlockedEl.hidden = true;
-    lockedEl.hidden = false;
-    statusEl.textContent = 'Locked';
-    input.value = '';
-    input.focus();
-  });
-
-  // Already in "family mode" this session? Re-open without re-typing.
-  const saved = sessionStorage.getItem(KEY_PASS);
-  if (saved) tryUnlock(saved, false);
+  if (!(window as any).__mrFamilyPage) {
+    (window as any).__mrFamilyPage = true;
+    document.addEventListener('astro:page-load', initFamilyPage);
+  }
+  initFamilyPage();
 </script>

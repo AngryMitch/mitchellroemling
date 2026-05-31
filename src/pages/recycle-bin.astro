@@ -105,8 +105,19 @@ const trash = [
 </style>
 
 <script>
-  document.getElementById('empty-btn')?.addEventListener('click', () => {
-    const msg = document.getElementById('empty-msg');
-    if (msg) msg.hidden = false;
-  });
+  function initRecycleBin() {
+    const btn = document.getElementById('empty-btn');
+    if (!btn || btn.dataset.recycleBinReady) return;
+    btn.dataset.recycleBinReady = 'true';
+    btn.addEventListener('click', () => {
+      const msg = document.getElementById('empty-msg');
+      if (msg) msg.hidden = false;
+    });
+  }
+
+  if (!(window as any).__mrRecycleBin) {
+    (window as any).__mrRecycleBin = true;
+    document.addEventListener('astro:page-load', initRecycleBin);
+  }
+  initRecycleBin();
 </script>

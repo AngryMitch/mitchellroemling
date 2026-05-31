@@ -1,23 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DesktopIcon from '../components/DesktopIcon.astro';
-import { SITE, NAV_ITEMS } from '../consts';
-
-// Desktop icons = primary nav + a Recycle Bin easter-egg + the locked
-// `.family` corner (a visible locked door; double-click to enter the passcode).
-const icons = [
-  ...NAV_ITEMS.map((n) => ({ href: n.href, icon: n.icon, label: n.label })),
-  { href: '/recycle-bin', icon: 'recycle', label: 'Recycle Bin' },
-  { href: '/family', icon: 'family-locked', label: '.family' },
-];
+import { SITE } from '../consts';
 ---
 
 <BaseLayout title={SITE.name} description={SITE.description} bodyClass="is-desktop">
   <div class="desktop">
-    <div class="icons" role="list" aria-label="Desktop shortcuts">
-      {icons.map((i) => <DesktopIcon href={i.href} icon={i.icon} label={i.label} />)}
-    </div>
-
     <div class="welcome bevel-raised" role="note">
       <div class="welcome-bar font-chrome">Welcome.txt - Notepad</div>
       <div class="welcome-body">
@@ -37,16 +24,11 @@ const icons = [
     min-height: calc(100vh - var(--taskbar-h) - 1rem);
     min-height: calc(100dvh - var(--taskbar-h) - 1rem);
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
     align-items: start;
+    align-content: stretch;
     gap: 1.5rem;
     padding: 1.25rem;
-  }
-  .icons {
-    display: grid;
-    grid-template-columns: repeat(2, 92px);
-    gap: 6px;
-    align-content: start;
   }
   .welcome {
     justify-self: end;
@@ -80,12 +62,8 @@ const icons = [
   @media (max-width: 640px) {
     .desktop {
       grid-template-columns: 1fr;
+      align-content: start;
       gap: 1rem;
-    }
-    .icons {
-      grid-template-columns: 1fr;
-      gap: 2px;
-      width: 100%;
     }
     .welcome {
       justify-self: stretch;

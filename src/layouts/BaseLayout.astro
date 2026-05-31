@@ -1,6 +1,9 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import Taskbar from '../components/Taskbar.astro';
+import MusicPlayer from '../components/MusicPlayer.astro';
+import DesktopShortcuts from '../components/DesktopShortcuts.astro';
 import { SITE } from '../consts';
 
 /**
@@ -82,13 +85,18 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
       title={`${SITE.name} - Blog`}
       href="/rss.xml"
     />
+
+    <!-- Client-side routing so my music player can keep playing across pages. -->
+    <ClientRouter />
   </head>
   <body class:list={['app', bodyClass, { 'no-chrome': !chrome }]}>
     <a class="skip-link" href="#main">Skip to content</a>
+    {chrome && <DesktopShortcuts />}
     <main id="main" class="app-main">
       <slot />
     </main>
     {chrome && <Taskbar />}
+    {chrome && <MusicPlayer />}
 
     <style>
       .app {
@@ -107,9 +115,16 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
         background-attachment: fixed;
       }
       .app-main {
+        position: relative;
+        z-index: 2;
+        pointer-events: none;
         min-height: 100vh;
         min-height: 100dvh;
         padding-bottom: calc(var(--taskbar-h) + 1rem);
+      }
+      .app-main :global(.welcome),
+      .app-main :global(.window) {
+        pointer-events: auto;
       }
       .app.no-chrome .app-main {
         padding-bottom: 0;

@@ -60,9 +60,19 @@ const { closeHref = '/' } = Astro.props;
 <script>
   // The minimise button (data-min) is wired up by the Taskbar, which owns the
   // tray button it collapses into. Here we only handle maximise.
-  document.querySelectorAll<HTMLButtonElement>('[data-max]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      btn.closest<HTMLElement>('.window')?.classList.toggle('is-maximised');
+  function initWindowControls() {
+    document.querySelectorAll<HTMLButtonElement>('[data-max]').forEach((btn) => {
+      if (btn.dataset.windowControlsReady) return;
+      btn.dataset.windowControlsReady = 'true';
+      btn.addEventListener('click', () => {
+        btn.closest<HTMLElement>('.window')?.classList.toggle('is-maximised');
+      });
     });
-  });
+  }
+
+  if (!(window as any).__mrWindowControls) {
+    (window as any).__mrWindowControls = true;
+    document.addEventListener('astro:page-load', initWindowControls);
+  }
+  initWindowControls();
 </script>

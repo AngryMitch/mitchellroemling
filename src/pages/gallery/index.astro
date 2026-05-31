@@ -114,31 +114,42 @@ const counts = {
 </style>
 
 <script>
-  const filters = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter'));
-  const cards = Array.from(document.querySelectorAll<HTMLElement>('.art-card'));
-  const shownCount = document.getElementById('shown-count');
-  const noResults = document.querySelector<HTMLElement>('.no-results');
+  function initGalleryFilters() {
+    const filters = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter'));
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.art-card'));
+    const shownCount = document.getElementById('shown-count');
+    const noResults = document.querySelector<HTMLElement>('.no-results');
+    if (filters.length === 0) return;
 
-  function apply(type: string) {
-    let shown = 0;
-    cards.forEach((card) => {
-      const match = type === 'all' || card.dataset.type === type;
-      card.style.display = match ? '' : 'none';
-      if (match) shown++;
+    const apply = (type: string) => {
+      let shown = 0;
+      cards.forEach((card) => {
+        const match = type === 'all' || card.dataset.type === type;
+        card.style.display = match ? '' : 'none';
+        if (match) shown++;
+      });
+      if (shownCount) shownCount.textContent = String(shown);
+      if (noResults) noResults.hidden = shown !== 0;
+    };
+
+    filters.forEach((btn) => {
+      if (btn.dataset.galleryFilterReady) return;
+      btn.dataset.galleryFilterReady = 'true';
+      btn.addEventListener('click', () => {
+        filters.forEach((b) => {
+          b.classList.remove('is-active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
+        apply(btn.dataset.filter ?? 'all');
+      });
     });
-    if (shownCount) shownCount.textContent = String(shown);
-    if (noResults) noResults.hidden = shown !== 0;
   }
 
-  filters.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      filters.forEach((b) => {
-        b.classList.remove('is-active');
-        b.setAttribute('aria-pressed', 'false');
-      });
-      btn.classList.add('is-active');
-      btn.setAttribute('aria-pressed', 'true');
-      apply(btn.dataset.filter ?? 'all');
-    });
-  });
+  if (!(window as any).__mrGalleryFilters) {
+    (window as any).__mrGalleryFilters = true;
+    document.addEventListener('astro:page-load', initGalleryFilters);
+  }
+  initGalleryFilters();
 </script>

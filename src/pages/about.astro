@@ -210,18 +210,33 @@ const funStats = [
 </style>
 
 <script>
-  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
-  const panels: Record<string, HTMLElement | null> = {
-    'tab-about': document.getElementById('panel-about'),
-    'tab-props': document.getElementById('panel-props'),
-  };
-  function select(id: string) {
+  function initAboutTabs() {
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+    const panels: Record<string, HTMLElement | null> = {
+      'tab-about': document.getElementById('panel-about'),
+      'tab-props': document.getElementById('panel-props'),
+    };
+    if (tabs.length === 0 || !panels['tab-about']) return;
+
+    const select = (id: string) => {
+      tabs.forEach((t) => {
+        const on = t.id === id;
+        t.setAttribute('aria-selected', String(on));
+        const panel = panels[t.id];
+        if (panel) panel.hidden = !on;
+      });
+    };
+
     tabs.forEach((t) => {
-      const on = t.id === id;
-      t.setAttribute('aria-selected', String(on));
-      const panel = panels[t.id];
-      if (panel) panel.hidden = !on;
+      if (t.dataset.aboutTabsReady) return;
+      t.dataset.aboutTabsReady = 'true';
+      t.addEventListener('click', () => select(t.id));
     });
   }
-  tabs.forEach((t) => t.addEventListener('click', () => select(t.id)));
+
+  if (!(window as any).__mrAboutTabs) {
+    (window as any).__mrAboutTabs = true;
+    document.addEventListener('astro:page-load', initAboutTabs);
+  }
+  initAboutTabs();
 </script>

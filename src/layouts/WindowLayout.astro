@@ -32,7 +32,13 @@ const hasStatus = Astro.slots.has('statusbar');
 
 <style>
   .window-page {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
     padding-top: clamp(0.75rem, 4vh, 2.5rem);
     padding-bottom: 2rem;
+  }
+  .window-page :global(.window) {
+    pointer-events: auto;
   }
 </style>

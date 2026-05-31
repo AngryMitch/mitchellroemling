@@ -220,47 +220,61 @@ const fmt = (d: Date) =>
 </style>
 
 <script>
-  // ---- Row navigation ----------------------------------------------------
-  document.querySelectorAll<HTMLElement>('.row').forEach((row) => {
-    const go = () => {
-      const href = row.dataset.href;
-      if (href) window.location.href = href;
-    };
-    row.addEventListener('click', (e) => {
-      // Let real link clicks behave normally.
-      if ((e.target as HTMLElement).tagName !== 'A') go();
-    });
-    row.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') go();
-    });
-  });
+  function initProjectsTable() {
+    // ---- Row navigation ----------------------------------------------------
+    document.querySelectorAll<HTMLElement>('.row').forEach((row) => {
+      if (row.dataset.projectsRowReady) return;
+      row.dataset.projectsRowReady = 'true';
 
-  // ---- Column sorting ----------------------------------------------------
-  const table = document.getElementById('projects-table');
-  const tbody = table?.querySelector('tbody');
-  document.querySelectorAll<HTMLButtonElement>('.sort').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (!tbody) return;
-      const key = btn.dataset.key!;
-      const dir = btn.dataset.dir === 'asc' ? 'desc' : 'asc';
-      document.querySelectorAll('.sort').forEach((b) => b.removeAttribute('data-dir'));
-      btn.dataset.dir = dir;
-
-      const rows = Array.from(tbody.querySelectorAll<HTMLElement>('.row'));
-      rows.sort((a, b) => {
-        let av: string | number = '';
-        let bv: string | number = '';
-        if (key === 'date') {
-          av = Number(a.dataset.date);
-          bv = Number(b.dataset.date);
-        } else {
-          av = a.dataset[key] ?? '';
-          bv = b.dataset[key] ?? '';
-        }
-        const cmp = av < bv ? -1 : av > bv ? 1 : 0;
-        return dir === 'asc' ? cmp : -cmp;
+      const go = () => {
+        const href = row.dataset.href;
+        if (href) window.location.href = href;
+      };
+      row.addEventListener('click', (e) => {
+        // Let real link clicks behave normally.
+        if ((e.target as HTMLElement).tagName !== 'A') go();
       });
-      rows.forEach((r) => tbody.appendChild(r));
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') go();
+      });
     });
-  });
+
+    // ---- Column sorting ----------------------------------------------------
+    const table = document.getElementById('projects-table');
+    const tbody = table?.querySelector('tbody');
+    document.querySelectorAll<HTMLButtonElement>('.sort').forEach((btn) => {
+      if (btn.dataset.projectsSortReady) return;
+      btn.dataset.projectsSortReady = 'true';
+
+      btn.addEventListener('click', () => {
+        if (!tbody) return;
+        const key = btn.dataset.key!;
+        const dir = btn.dataset.dir === 'asc' ? 'desc' : 'asc';
+        document.querySelectorAll('.sort').forEach((b) => b.removeAttribute('data-dir'));
+        btn.dataset.dir = dir;
+
+        const rows = Array.from(tbody.querySelectorAll<HTMLElement>('.row'));
+        rows.sort((a, b) => {
+          let av: string | number = '';
+          let bv: string | number = '';
+          if (key === 'date') {
+            av = Number(a.dataset.date);
+            bv = Number(b.dataset.date);
+          } else {
+            av = a.dataset[key] ?? '';
+            bv = b.dataset[key] ?? '';
+          }
+          const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+          return dir === 'asc' ? cmp : -cmp;
+        });
+        rows.forEach((r) => tbody.appendChild(r));
+      });
+    });
+  }
+
+  if (!(window as any).__mrProjectsTable) {
+    (window as any).__mrProjectsTable = true;
+    document.addEventListener('astro:page-load', initProjectsTable);
+  }
+  initProjectsTable();
 </script>

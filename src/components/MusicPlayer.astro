@@ -1,0 +1,180 @@
+---
+import { PLAYLIST, youtubeEmbedUrl } from '../music';
+
+/**
+ * My always-on music player: a YouTube (no-cookie) embed framed in a little
+ * Win95 window, docked bottom-right. It lives in BaseLayout (so it's on every
+ * page) and uses `transition:persist` so the audio keeps playing as I browse,
+ * once the visitor hits play (browsers won't autoplay sound on their own).
+ *
+ * Tracks come from src/music.ts. With more than one, a menu lets you switch.
+ */
+const first = PLAYLIST[0];
+const firstUrl = first ? youtubeEmbedUrl(first.id) : '';
+const hasMusic = PLAYLIST.length > 0;
+---
+
+{
+  hasMusic && (
+    <section
+      class="mp bevel-raised"
+      transition:persist="site-music"
+      data-collapsed="false"
+      aria-label="Music player"
+    >
+      <div class="mp-title font-chrome">
+        <span class="mp-name">Media Player</span>
+        <button
+          type="button"
+          class="mp-toggle bevel-raised"
+          data-mp-toggle
+          aria-label="Collapse or expand the music player"
+        >
+          _
+        </button>
+      </div>
+      <div class="mp-body">
+        {PLAYLIST.length > 1 && (
+          <select class="mp-select bevel-sunken" data-mp-select aria-label="Choose a track">
+            {PLAYLIST.map((t) => (
+              <option value={t.id}>{t.label}</option>
+            ))}
+          </select>
+        )}
+        <iframe
+          data-mp-frame
+          class="mp-frame"
+          src={firstUrl}
+          width="100%"
+          height="180"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          loading="lazy"
+          allowfullscreen
+          title="YouTube music player"
+        />
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .mp {
+    position: fixed;
+    right: 8px;
+    bottom: calc(var(--taskbar-h) + 8px);
+    z-index: 140;
+    width: min(320px, calc(100vw - 16px));
+    background: var(--win-grey);
+    padding: 3px;
+  }
+  .mp-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 22px;
+    padding: 0 4px 0 6px;
+    color: #fff;
+    background: linear-gradient(
+      90deg,
+      var(--win-navy) 0%,
+      var(--win-luna-blue) 70%,
+      var(--win-navy-2) 100%
+    );
+  }
+  .mp-name {
+    font-size: 9px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  .mp-toggle {
+    width: 18px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--win-text);
+    background: var(--win-grey);
+    padding: 0;
+  }
+  .mp-toggle:active {
+    border-color: var(--win-darker) var(--win-light) var(--win-light) var(--win-darker);
+  }
+  .mp-body {
+    margin-top: 3px;
+    padding: 4px;
+    background: var(--win-grey);
+  }
+  .mp[data-collapsed='true'] .mp-body {
+    display: none;
+  }
+  .mp-select {
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 3px 4px;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    background: var(--win-white);
+  }
+  .mp-frame {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: #000;
+  }
+
+  @media (max-width: 520px) {
+    .mp {
+      right: 6px;
+      bottom: calc(var(--taskbar-h) + 6px);
+      width: min(280px, calc(100vw - 12px));
+    }
+  }
+</style>
+
+<script>
+  // The player persists across navigation (transition:persist), so I only wire
+  // it up once. The element and its listeners carry over between pages.
+  const player = document.querySelector<HTMLElement>('.mp');
+  if (player && !player.dataset.mpReady) {
+    player.dataset.mpReady = 'true';
+
+    const toggle = player.querySelector<HTMLButtonElement>('[data-mp-toggle]');
+    const select = player.querySelector<HTMLSelectElement>('[data-mp-select]');
+    const frame = player.querySelector<HTMLIFrameElement>('[data-mp-frame]');
+    const embed = (id: string) => {
+      const params = new URLSearchParams({
+        controls: '1',
+        rel: '0',
+        modestbranding: '1',
+        loop: '1',
+        playlist: id,
+      });
+      return `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+    };
+
+    // Restore the collapsed state from a previous full page load.
+    if (localStorage.getItem('mr:mp-collapsed') === 'true') {
+      player.dataset.collapsed = 'true';
+    }
+    toggle?.addEventListener('click', () => {
+      const collapsed = player.dataset.collapsed === 'true';
+      player.dataset.collapsed = String(!collapsed);
+      localStorage.setItem('mr:mp-collapsed', String(!collapsed));
+    });
+
+    // Restore the last-picked track on a full reload (playback can't resume,
+    // but the right song loads).
+    const savedTrack = localStorage.getItem('mr:mp-track');
+    if (savedTrack && select && frame) {
+      select.value = savedTrack;
+      if (select.value === savedTrack) frame.src = embed(savedTrack);
+    }
+    select?.addEventListener('change', () => {
+      if (!frame) return;
+      frame.src = embed(select.value);
+      localStorage.setItem('mr:mp-track', select.value);
+    });
+  }
+</script>

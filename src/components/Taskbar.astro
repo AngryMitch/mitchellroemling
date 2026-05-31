@@ -144,35 +144,20 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 </style>
 
 <script>
-  // ---- Start menu toggle -------------------------------------------------
-  const startBtn = document.getElementById('start-button');
-  const startMenu = document.getElementById('start-menu');
+  // View Transitions friendly: I register the document-level listeners and the
+  // clock interval once, and re-bind the per-page elements on every
+  // `astro:page-load` (which fires on first load and after each navigation).
 
-  function setMenu(open: boolean) {
-    if (!startBtn || !startMenu) return;
-    startBtn.setAttribute('aria-expanded', String(open));
-    startMenu.toggleAttribute('hidden', !open);
+  function closeStartMenu() {
+    const btn = document.getElementById('start-button');
+    const menu = document.getElementById('start-menu');
+    if (!btn || !menu) return;
+    btn.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('hidden', '');
   }
 
-  startBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = startBtn.getAttribute('aria-expanded') === 'true';
-    setMenu(!open);
-  });
-
-  // Close on outside click or Escape.
-  document.addEventListener('click', (e) => {
-    if (!startMenu || startMenu.hasAttribute('hidden')) return;
-    const target = e.target as Node;
-    if (!startMenu.contains(target) && target !== startBtn) setMenu(false);
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setMenu(false);
-  });
-
-  // ---- Live clock --------------------------------------------------------
-  const clock = document.getElementById('taskbar-clock') as HTMLTimeElement | null;
-  function tick() {
+  function tickClock() {
+    const clock = document.getElementById('taskbar-clock') as HTMLTimeElement | null;
     if (!clock) return;
     const now = new Date();
     clock.dateTime = now.toISOString();
@@ -182,53 +167,91 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
       hour12: true,
     });
   }
-  tick();
-  window.setInterval(tick, 1000 * 15);
 
-  // ---- Minimise the page window to / from the tray -----------------------
-  const pageWindow = document.querySelector<HTMLElement>('.window-page .window');
-  const taskButton = document.querySelector<HTMLElement>('[data-task-btn]');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Register the global bits exactly once for the tab.
+  if (!(window as any).__mrTaskbar) {
+    (window as any).__mrTaskbar = true;
 
-  function setTaskMinimized(min: boolean) {
-    taskButton?.classList.toggle('is-minimized', min);
-    taskButton?.setAttribute('aria-pressed', String(!min));
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-button');
+      if (!menu || menu.hasAttribute('hidden')) return;
+      const target = e.target as Node;
+      if (!menu.contains(target) && target !== btn && !btn?.contains(target))
+        closeStartMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeStartMenu();
+    });
+
+    // One interval for the life of the tab; it updates whatever clock is in the DOM.
+    window.setInterval(tickClock, 1000 * 15);
+    document.addEventListener('astro:page-load', initTaskbar);
   }
 
-  function minimizeWindow() {
-    if (!pageWindow) return;
-    setTaskMinimized(true);
-    if (reduceMotion) {
-      pageWindow.classList.add('is-minimized');
-      return;
+  function initTaskbar() {
+    tickClock();
+
+    // ---- Start menu toggle ----
+    const startBtn = document.getElementById('start-button');
+    const startMenu = document.getElementById('start-menu');
+    if (startBtn && !startBtn.dataset.taskbarReady) {
+      startBtn.dataset.taskbarReady = 'true';
+      startBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = startBtn.getAttribute('aria-expanded') === 'true';
+        startBtn.setAttribute('aria-expanded', String(!open));
+        startMenu?.toggleAttribute('hidden', open);
+      });
     }
-    pageWindow.classList.add('is-minimizing');
-    window.setTimeout(() => {
-      pageWindow.classList.remove('is-minimizing');
-      pageWindow.classList.add('is-minimized');
-    }, 180);
-  }
 
-  function restoreWindow() {
-    if (!pageWindow) return;
-    setTaskMinimized(false);
-    pageWindow.classList.remove('is-minimized');
-    if (!reduceMotion) {
-      pageWindow.classList.add('is-restoring');
-      window.setTimeout(() => pageWindow.classList.remove('is-restoring'), 180);
-    }
-    pageWindow.scrollIntoView({ block: 'nearest' });
-  }
+    // ---- Minimise the page window to / from the tray ----
+    const pageWindow = document.querySelector<HTMLElement>('.window-page .window');
+    const taskButton = document.querySelector<HTMLElement>('[data-task-btn]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!pageWindow || !taskButton) return;
 
-  if (pageWindow && taskButton) {
-    // The window's minimise (─) control sends it to the tray.
+    const setTaskMinimized = (min: boolean) => {
+      taskButton.classList.toggle('is-minimized', min);
+      taskButton.setAttribute('aria-pressed', String(!min));
+    };
+    const minimizeWindow = () => {
+      setTaskMinimized(true);
+      if (reduceMotion) {
+        pageWindow.classList.add('is-minimized');
+        return;
+      }
+      pageWindow.classList.add('is-minimizing');
+      window.setTimeout(() => {
+        pageWindow.classList.remove('is-minimizing');
+        pageWindow.classList.add('is-minimized');
+      }, 180);
+    };
+    const restoreWindow = () => {
+      setTaskMinimized(false);
+      pageWindow.classList.remove('is-minimized');
+      if (!reduceMotion) {
+        pageWindow.classList.add('is-restoring');
+        window.setTimeout(() => pageWindow.classList.remove('is-restoring'), 180);
+      }
+      pageWindow.scrollIntoView({ block: 'nearest' });
+    };
+
     pageWindow
       .querySelectorAll<HTMLElement>('[data-min]')
-      .forEach((btn) => btn.addEventListener('click', minimizeWindow));
-    // The taskbar button toggles minimised ⇄ restored.
-    taskButton.addEventListener('click', () => {
-      if (pageWindow.classList.contains('is-minimized')) restoreWindow();
-      else minimizeWindow();
-    });
+      .forEach((btn) => {
+        if (btn.dataset.taskbarReady) return;
+        btn.dataset.taskbarReady = 'true';
+        btn.addEventListener('click', minimizeWindow);
+      });
+    if (!taskButton.dataset.taskbarReady) {
+      taskButton.dataset.taskbarReady = 'true';
+      taskButton.addEventListener('click', () => {
+        if (pageWindow.classList.contains('is-minimized')) restoreWindow();
+        else minimizeWindow();
+      });
+    }
   }
+
+  initTaskbar();
 </script>

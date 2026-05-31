@@ -186,37 +186,41 @@ const glyph = glyphs[variant];
     opener?.focus();
   }
 
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
+  if (!(window as any).__mrDialog) {
+    (window as any).__mrDialog = true;
 
-    const opener = target.closest<HTMLElement>('[data-open-dialog]');
-    if (opener) {
-      const id = opener.getAttribute('data-open-dialog');
-      const overlay = id && document.getElementById(id);
-      if (overlay) {
-        opener.setAttribute('data-dialog-opener', '');
-        overlay.hidden = false;
-        overlay.querySelector<HTMLElement>('[autofocus]')?.focus();
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+
+      const opener = target.closest<HTMLElement>('[data-open-dialog]');
+      if (opener) {
+        const id = opener.getAttribute('data-open-dialog');
+        const overlay = id && document.getElementById(id);
+        if (overlay) {
+          opener.setAttribute('data-dialog-opener', '');
+          overlay.hidden = false;
+          overlay.querySelector<HTMLElement>('[autofocus]')?.focus();
+        }
+        return;
       }
-      return;
-    }
 
-    if (target.closest('[data-close-dialog]')) {
-      const overlay = target.closest<HTMLElement>('.dialog-overlay');
-      if (overlay) closeDialog(overlay);
-      return;
-    }
+      if (target.closest('[data-close-dialog]')) {
+        const overlay = target.closest<HTMLElement>('.dialog-overlay');
+        if (overlay) closeDialog(overlay);
+        return;
+      }
 
-    // Backdrop click closes.
-    if (target.classList.contains('dialog-overlay')) {
-      closeDialog(target);
-    }
-  });
+      // Backdrop click closes.
+      if (target.classList.contains('dialog-overlay')) {
+        closeDialog(target);
+      }
+    });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    document
-      .querySelectorAll<HTMLElement>('.dialog-overlay:not([hidden])')
-      .forEach((overlay) => closeDialog(overlay));
-  });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      document
+        .querySelectorAll<HTMLElement>('.dialog-overlay:not([hidden])')
+        .forEach((overlay) => closeDialog(overlay));
+    });
+  }
 </script>

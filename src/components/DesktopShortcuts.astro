@@ -1,0 +1,37 @@
+---
+import DesktopIcon from './DesktopIcon.astro';
+import { NAV_ITEMS } from '../consts';
+
+const shortcuts = [
+  ...NAV_ITEMS.map((n) => ({ href: n.href, icon: n.icon, label: n.label })),
+  { href: '/recycle-bin', icon: 'recycle', label: 'Recycle Bin' },
+  { href: '/family', icon: 'family-locked', label: '.family' },
+];
+---
+
+<nav class="desktop-shortcuts" aria-label="Desktop shortcuts">
+  {shortcuts.map((i) => <DesktopIcon href={i.href} icon={i.icon} label={i.label} />)}
+</nav>
+
+<style>
+  .desktop-shortcuts {
+    position: fixed;
+    left: 1.25rem;
+    bottom: calc(var(--taskbar-h) + 1.25rem);
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 92px);
+    gap: 6px;
+    align-content: start;
+  }
+
+  @media (max-width: 640px) {
+    .desktop-shortcuts {
+      left: 1rem;
+      bottom: calc(var(--taskbar-h) + 1rem);
+      grid-template-columns: 1fr;
+      gap: 2px;
+      width: min(260px, calc(100vw - 2rem));
+    }
+  }
+</style>
