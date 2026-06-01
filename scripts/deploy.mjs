@@ -34,7 +34,7 @@ const dryRun = args.includes('--dry');
 const passthrough = args.filter((a) => a !== '--dry');
 
 function run(cmd, cmdArgs) {
-  const result = spawnSync(cmd, cmdArgs, { stdio: 'inherit', shell: true, cwd: root });
+  const result = spawnSync(`${cmd} ${cmdArgs.join(' ')}`, { stdio: 'inherit', shell: true, cwd: root });
   if (result.status !== 0) {
     console.error(`\n✖ "${cmd} ${cmdArgs.join(' ')}" failed.`);
     process.exit(result.status ?? 1);
