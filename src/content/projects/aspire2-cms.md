@@ -14,7 +14,8 @@ featured: true
 draft: false
 ---
 # Aspire 2: CMS | Beta Launch - Website Management Simplified
-**Link:** [Aspire 2: CMS](https://aspire2cms.com)
+##### **Link:** [Aspire 2: CMS](https://aspire2cms.com)
+
 If I had learned one thing from hanging around at the pub is that the older generation of Tradies are not technically minded at all. Even to the point where they hand their phones over to the bartender to put through a certain app-based deal for them. I saw an opportunity in this where my knowledge and skills collided with a clear problem that these tradies were running into.
 
 ## The Problem - *Being Left Behind*
