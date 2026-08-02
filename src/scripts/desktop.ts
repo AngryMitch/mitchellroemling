@@ -103,6 +103,45 @@ function runNewScripts(doc: Document) {
   }
 }
 
+/* ----------------------------------------------------------------- styles */
+/* Astro inlines each page's scoped CSS into its own <style> block rather than
+ * the shared stylesheet, so a fetched window arrives with its rules left behind
+ * in the document we threw away. Without this the projects table renders as a
+ * bare table, blog cards render as underlined links, and so on — until you
+ * reload, which loads that page (and its <style>) directly.
+ *
+ * Must run *before* the window is inserted, or it flashes unstyled. */
+const seenStyles = new Set<string>();
+const seenHrefs = new Set<string>();
+for (const s of Array.from(document.querySelectorAll('style'))) {
+  seenStyles.add(s.textContent ?? '');
+}
+for (const l of Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'))) {
+  seenHrefs.add(new URL(l.getAttribute('href') ?? '', location.href).href);
+}
+
+function adoptStyles(doc: Document) {
+  for (const link of Array.from(
+    doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+  )) {
+    const abs = new URL(link.getAttribute('href') ?? '', location.href).href;
+    if (!abs || seenHrefs.has(abs)) continue;
+    seenHrefs.add(abs);
+    const el = document.createElement('link');
+    el.rel = 'stylesheet';
+    el.href = abs;
+    document.head.appendChild(el);
+  }
+  for (const style of Array.from(doc.querySelectorAll('style'))) {
+    const css = style.textContent ?? '';
+    if (!css.trim() || seenStyles.has(css)) continue;
+    seenStyles.add(css);
+    const el = document.createElement('style');
+    el.textContent = css;
+    document.head.appendChild(el);
+  }
+}
+
 /* Page scripts already re-bind themselves on this event, and each guards with a
    `data-*Ready` flag, so firing it after every injection is safe and idempotent. */
 const announce = () => document.dispatchEvent(new CustomEvent('mr:window-ready'));
@@ -337,6 +376,10 @@ async function open(rawPath: string, { push = true, replaceWindow = null }: Open
     location.href = path;
     return;
   }
+
+  // Styles first: the window must never be inserted before the rules that
+  // describe it, or it paints unstyled for a frame.
+  adoptStyles(fetched.doc);
 
   // A link followed from inside a window navigates that window in place, the way
   // a file manager would. Only the desktop icons and Start menu open new windows.
