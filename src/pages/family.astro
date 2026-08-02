@@ -29,7 +29,7 @@ import encData from '../generated/family.enc.json';
           <label class="sr-only" for="passcode-input">Family passcode</label>
           <input
             id="passcode-input"
-            class="passcode-input bevel-sunken"
+            class="passcode-input well"
             type="password"
             inputmode="text"
             placeholder="passcode"
@@ -57,8 +57,8 @@ import encData from '../generated/family.enc.json';
       </div>
 
       <Fragment slot="statusbar">
-        <span id="family-status" class="status-cell bevel-sunken">Locked</span>
-        <span class="status-cell bevel-sunken grow">.family</span>
+        <span id="family-status" class="status-cell">Locked</span>
+        <span class="status-cell grow">.family</span>
       </Fragment>
     </Window>
   </div>
@@ -92,15 +92,15 @@ import encData from '../generated/family.enc.json';
     margin-bottom: 0.75rem;
   }
   .lock-title {
-    font-size: 13px;
-    color: var(--win-navy);
+    font-size: 1.25rem;
+    font-weight: 800;
     margin-bottom: 0.75rem;
   }
   .lock-text {
     font-family: var(--font-body);
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 1.25rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin-bottom: 1.5rem;
   }
   .unlock-form {
     display: flex;
@@ -111,93 +111,115 @@ import encData from '../generated/family.enc.json';
   .passcode-input {
     font-family: var(--font-ui);
     font-size: 1rem;
-    padding: 7px 10px;
+    min-height: var(--tap);
+    padding: 10px 16px;
     min-width: 200px;
-    background: var(--win-white);
+    flex: 1;
+    max-width: 260px;
+    color: var(--ink);
+    background: var(--paper-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-pill);
+  }
+  .passcode-input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
   .error {
     margin-top: 1rem;
-    color: #b00020;
+    color: #c0563f;
+    font-weight: 700;
     font-family: var(--font-ui);
   }
   .working {
     margin-top: 1rem;
-    font-family: var(--font-chrome);
-    font-size: 9px;
-    color: var(--win-navy);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
   }
 
   /* ---- Unlocked explorer ---- */
   .explorer {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 10px;
+    grid-template-columns: 210px 1fr;
+    gap: 12px;
     min-height: 320px;
   }
   .files {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    padding: 6px;
-    background: var(--win-white);
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    padding: 8px;
+    background: var(--paper-2);
+    border: none;
+    border-radius: var(--radius-sm);
   }
   .content {
     max-width: none;
-    padding: 1rem 1.25rem;
-    background: var(--win-white);
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    padding: 1.25rem 1.5rem;
+    background: var(--paper-2);
+    border: none;
+    border-radius: var(--radius-sm);
     overflow-wrap: break-word;
   }
   .actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    margin-top: 12px;
-  }
-  .status-cell {
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    font-family: var(--font-ui);
-  }
-  .status-cell.grow {
-    flex: 1;
+    margin-top: 16px;
   }
 
   /* Injected file buttons (styled here since they're created in JS). */
   .files :global(.file-btn) {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
+    min-height: var(--tap);
     text-align: left;
-    padding: 6px 8px;
+    padding: 8px 12px;
     font-family: var(--font-ui);
+    font-weight: 600;
     font-size: 0.92rem;
     background: transparent;
-    border: 1px solid transparent;
-    color: var(--win-text);
+    border: none;
+    border-radius: var(--radius-xs);
+    color: var(--ink);
     cursor: pointer;
+    transition: background var(--transition);
   }
   .files :global(.file-btn:hover) {
-    background: #eef3fb;
+    background: var(--accent-soft);
   }
   .files :global(.file-btn.active) {
-    background: var(--win-selection);
-    color: var(--win-selection-text);
+    background: var(--accent);
+    color: #fff;
   }
   .files :global(.file-btn img) {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    flex: none;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 640px) {
     .explorer {
       grid-template-columns: 1fr;
+    }
+    .files {
+      flex-direction: row;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .files :global(.file-btn) {
+      width: auto;
+      flex: none;
+      white-space: nowrap;
+    }
+    .content {
+      padding: 1rem;
+    }
+    .actions :global(.btn) {
+      flex: 1;
     }
   }
 </style>

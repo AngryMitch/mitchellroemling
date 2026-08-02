@@ -3,7 +3,7 @@ import { PLAYLIST, youtubeEmbedUrl } from '../music';
 
 /**
  * My always-on music player: a YouTube (no-cookie) embed framed in a little
- * Win95 window, docked bottom-right. It lives in BaseLayout (so it's on every
+ * window, docked bottom-right. It lives in BaseLayout (so it's on every
  * page) and uses `transition:persist` so the audio keeps playing as I browse,
  * once the visitor hits play (browsers won't autoplay sound on their own).
  *
@@ -17,25 +17,25 @@ const hasMusic = PLAYLIST.length > 0;
 {
   hasMusic && (
     <section
-      class="mp bevel-raised"
+      class="mp surface"
       transition:persist="site-music"
       data-collapsed="false"
       aria-label="Music player"
     >
       <div class="mp-title font-chrome">
-        <span class="mp-name">Media Player</span>
+        <span class="mp-name">♪ Music</span>
         <button
           type="button"
-          class="mp-toggle bevel-raised"
+          class="mp-toggle"
           data-mp-toggle
           aria-label="Collapse or expand the music player"
         >
-          _
+          <span class="mp-chevron" aria-hidden="true" />
         </button>
       </div>
       <div class="mp-body">
         {PLAYLIST.length > 1 && (
-          <select class="mp-select bevel-sunken" data-mp-select aria-label="Choose a track">
+          <select class="mp-select well" data-mp-select aria-label="Choose a track">
             {PLAYLIST.map((t) => (
               <option value={t.id}>{t.label}</option>
             ))}
@@ -61,74 +61,89 @@ const hasMusic = PLAYLIST.length > 0;
 <style>
   .mp {
     position: fixed;
-    right: 8px;
-    bottom: calc(var(--taskbar-h) + 8px);
+    right: 10px;
+    bottom: calc(var(--taskbar-gap) + 10px);
     z-index: 140;
-    width: min(320px, calc(100vw - 16px));
-    background: var(--win-grey);
-    padding: 3px;
+    width: min(320px, calc(100vw - 20px));
+    padding: 6px;
+    transition: width var(--transition);
   }
   .mp-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    height: 22px;
-    padding: 0 4px 0 6px;
-    color: #fff;
-    background: linear-gradient(
-      90deg,
-      var(--win-navy) 0%,
-      var(--win-luna-blue) 70%,
-      var(--win-navy-2) 100%
-    );
+    gap: 10px;
+    min-height: 34px;
+    padding: 0 4px 0 12px;
+    border-radius: var(--radius-inner);
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, #ffdfb9 100%);
   }
   .mp-name {
-    font-size: 9px;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
   }
   .mp-toggle {
-    width: 18px;
-    height: 16px;
+    width: 30px;
+    height: 30px;
+    flex: none;
     display: grid;
     place-items: center;
-    font-size: 9px;
-    line-height: 1;
-    color: var(--win-text);
-    background: var(--win-grey);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
     padding: 0;
   }
-  .mp-toggle:active {
-    border-color: var(--win-darker) var(--win-light) var(--win-light) var(--win-darker);
+  .mp-toggle:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  /* A chevron rather than a minimise underscore; it flips when collapsed. */
+  .mp-chevron {
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--transition);
+  }
+  .mp[data-collapsed='true'] .mp-chevron {
+    transform: translateY(2px) rotate(-135deg);
   }
   .mp-body {
-    margin-top: 3px;
-    padding: 4px;
-    background: var(--win-grey);
+    margin-top: 6px;
   }
   .mp[data-collapsed='true'] .mp-body {
     display: none;
   }
+  .mp[data-collapsed='true'] {
+    width: auto;
+  }
   .mp-select {
     width: 100%;
-    margin-bottom: 4px;
-    padding: 3px 4px;
+    margin-bottom: 6px;
+    padding: 8px 10px;
     font-family: var(--font-ui);
     font-size: 0.85rem;
-    background: var(--win-white);
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
   }
   .mp-frame {
     display: block;
     width: 100%;
     border: 0;
-    background: #000;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+    background: #211d18;
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 640px) {
     .mp {
-      right: 6px;
-      bottom: calc(var(--taskbar-h) + 6px);
-      width: min(280px, calc(100vw - 12px));
+      right: 8px;
+      bottom: calc(var(--taskbar-gap) + 8px);
+      width: min(300px, calc(100vw - 16px));
     }
   }
 </style>
@@ -154,8 +169,11 @@ const hasMusic = PLAYLIST.length > 0;
       return `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
     };
 
-    // Restore the collapsed state from a previous full page load.
-    if (localStorage.getItem('mr:mp-collapsed') === 'true') {
+    // Restore the collapsed state from a previous full page load. On phones
+    // it starts collapsed, so a 180px video never lands on top of the page.
+    const savedCollapsed = localStorage.getItem('mr:mp-collapsed');
+    const collapseByDefault = window.matchMedia('(max-width: 768px)').matches;
+    if (savedCollapsed === 'true' || (savedCollapsed === null && collapseByDefault)) {
       player.dataset.collapsed = 'true';
     }
     toggle?.addEventListener('click', () => {
@@ -164,12 +182,23 @@ const hasMusic = PLAYLIST.length > 0;
       localStorage.setItem('mr:mp-collapsed', String(!collapsed));
     });
 
-    // Restore the last-picked track on a full reload (playback can't resume,
-    // but the right song loads).
-    const savedTrack = localStorage.getItem('mr:mp-track');
-    if (savedTrack && select && frame) {
-      select.value = savedTrack;
-      if (select.value === savedTrack) frame.src = embed(savedTrack);
+    // Which track to open on: the visitor's own last pick if they made one,
+    // otherwise a random track so the site doesn't always greet you with the
+    // same song. The random pick is deliberately NOT saved — only an explicit
+    // choice from the menu is, so every fresh visit reshuffles until then.
+    if (select && frame) {
+      const ids = Array.from(select.options, (o) => o.value);
+      const saved = localStorage.getItem('mr:mp-track');
+      const startId =
+        saved && ids.includes(saved)
+          ? saved
+          : ids[Math.floor(Math.random() * ids.length)];
+
+      if (startId) {
+        select.value = startId;
+        // ids[0] is already in the iframe from the server render.
+        if (startId !== ids[0]) frame.src = embed(startId);
+      }
     }
     select?.addEventListener('change', () => {
       if (!frame) return;

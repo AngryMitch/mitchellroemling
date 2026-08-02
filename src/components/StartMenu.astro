@@ -4,14 +4,14 @@ import { NAV_ITEMS, SITE, SOCIAL_LINKS } from '../consts';
 /**
  * The Start Menu panel. Hidden by default; toggled by the Start button in
  * the Taskbar (see Taskbar.astro's script). The vertical brand strip on the
- * left mimics the classic Win95 "Windows 95" sidebar.
+ * left is a nod to the classic Win95 sidebar, in a warmer key.
  */
 const pathname = Astro.url.pathname;
 const isActive = (match: string) =>
   pathname === match || pathname.startsWith(match + '/');
 ---
 
-<div id="start-menu" class="start-menu bevel-raised" hidden>
+<div id="start-menu" class="start-menu surface" hidden>
   <div class="brand-strip" aria-hidden="true">
     <span class="brand-name font-chrome">{SITE.name}</span>
   </div>
@@ -44,68 +44,94 @@ const isActive = (match: string) =>
 <style>
   .start-menu {
     position: absolute;
-    bottom: calc(var(--taskbar-h) - 2px);
-    left: 2px;
+    bottom: calc(100% + 6px);
+    left: 10px;
     z-index: 200;
     display: flex;
-    width: min(320px, 92vw);
-    background: var(--win-grey);
-    padding: 3px;
+    overflow: hidden;
+    width: min(320px, calc(100vw - 20px));
+    max-height: min(70vh, 560px);
+    background: var(--paper);
+    box-shadow: var(--shadow-lift);
+    animation: menu-in 160ms cubic-bezier(0.32, 0.72, 0.35, 1);
+  }
+  @keyframes menu-in {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
   }
   .start-menu[hidden] {
     display: none;
   }
   .brand-strip {
-    width: 30px;
+    width: 34px;
     flex: none;
-    background: linear-gradient(180deg, var(--win-luna-blue), var(--win-navy));
+    background: linear-gradient(180deg, #ffd7a6, var(--accent));
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding: 8px 0;
+    padding: 12px 0;
   }
   .brand-name {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     color: #fff;
-    font-size: 11px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     white-space: nowrap;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
   }
   .menu-items {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 4px;
+    padding: 8px;
     min-width: 0;
+    overflow-y: auto;
   }
   .item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 7px 10px;
+    gap: 12px;
+    min-height: var(--tap);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
-    color: var(--win-text);
+    color: var(--ink);
     font-family: var(--font-ui);
+    font-weight: 600;
     font-size: 0.95rem;
+    transition: background var(--transition);
+  }
+  .item img {
+    width: 24px;
+    height: 24px;
+    flex: none;
   }
   .item.small {
-    font-size: 0.85rem;
-    padding: 5px 10px;
+    min-height: 40px;
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .item.small img {
+    width: 20px;
+    height: 20px;
   }
   .item:hover,
   .item:focus-visible {
-    background: var(--win-selection);
-    color: var(--win-selection-text);
+    background: var(--accent-soft);
+    color: var(--ink);
     outline: none;
   }
   .item.active {
-    font-weight: bold;
+    background: var(--paper-2);
+    color: var(--accent-2);
   }
   .menu-items hr {
     border: none;
-    border-top: 1px solid var(--win-dark);
-    border-bottom: 1px solid var(--win-light);
-    margin: 4px 2px;
+    border-top: 1px solid var(--line);
+    margin: 6px 4px;
   }
 </style>

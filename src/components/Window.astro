@@ -2,9 +2,9 @@
 import TitleBar from './TitleBar.astro';
 
 /**
- * Static window chrome: a raised, bevelled frame with a title bar and a
- * content body. Use the default slot for the window body. Optional named
- * slots: `menubar` (a Win95 menu strip) and `statusbar` (bottom status row).
+ * Static window chrome: a soft rounded card with a title bar and a content
+ * body. Use the default slot for the window body. Optional named slots:
+ * `menubar` (the little menu strip) and `statusbar` (bottom status row).
  */
 interface Props {
   title: string;
@@ -32,7 +32,7 @@ const hasStatus = Astro.slots.has('statusbar');
 ---
 
 <section
-  class:list={['window', 'bevel-raised', className]}
+  class:list={['window', 'surface', className]}
   style={maxWidth ? `max-width:${maxWidth}` : undefined}
 >
   <TitleBar title={title} icon={icon} closeHref={closeHref} controls={controls} />
@@ -45,7 +45,7 @@ const hasStatus = Astro.slots.has('statusbar');
     )
   }
 
-  <div class:list={['window-body', { inset, 'bevel-sunken': inset }]}>
+  <div class:list={['window-body', { inset, 'well': inset }]}>
     <slot />
   </div>
 
@@ -60,12 +60,18 @@ const hasStatus = Astro.slots.has('statusbar');
 
 <style>
   .window {
-    background: var(--win-grey);
-    padding: 3px;
+    background: var(--chrome);
+    padding: 8px;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    overflow: hidden;
     transition: transform var(--transition), opacity var(--transition);
+  }
+  @media (max-width: 640px) {
+    .window {
+      padding: 6px;
+    }
   }
   /* Minimise-to-tray: animate down toward the taskbar, then hide. */
   .window.is-minimizing {
@@ -94,32 +100,31 @@ const hasStatus = Astro.slots.has('statusbar');
   .menubar {
     display: flex;
     gap: 2px;
-    padding: 2px 4px;
-    font-size: 9px;
+    padding: 4px 2px 2px;
+    font-size: 0.8rem;
   }
   .window-body {
     flex: 1;
-    margin-top: 3px;
-    padding: var(--body-pad, 1rem);
-    background: var(--win-white);
+    margin-top: 6px;
+    padding: var(--body-pad, clamp(0.9rem, 4vw, 1.75rem));
+    background: var(--paper);
     overflow-wrap: break-word;
-  }
-  .window-body.inset {
-    /* The .bevel-sunken utility supplies the recessed border. */
-    background: var(--win-white);
   }
   .statusbar {
     display: flex;
-    gap: 4px;
-    margin-top: 3px;
-    padding: 2px;
+    gap: 6px;
+    align-items: center;
+    margin-top: 6px;
+    padding: 0 2px;
+    min-width: 0;
   }
   /* Maximised state toggled by the title bar's maximise button. */
   .window.is-maximised {
     position: fixed;
-    inset: 4px 4px calc(var(--taskbar-h) + 4px) 4px;
+    inset: 8px 8px calc(var(--taskbar-gap) + 8px) 8px;
     max-width: none !important;
     z-index: 50;
     overflow: auto;
+    box-shadow: var(--shadow-lift);
   }
 </style>

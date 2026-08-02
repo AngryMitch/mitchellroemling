@@ -1,6 +1,6 @@
 ---
 /**
- * A modal Win95-style dialog box. Hidden by default.
+ * A modal dialog box. Hidden by default.
  *
  * Open it from anywhere with a trigger:
  *   <button data-open-dialog="my-dialog">…</button>
@@ -22,7 +22,7 @@ const glyph = glyphs[variant];
 
 <div class="dialog-overlay" id={id} hidden>
   <div
-    class="dialog bevel-raised"
+    class="dialog surface"
     role="alertdialog"
     aria-modal="true"
     aria-labelledby={`${id}-title`}
@@ -30,7 +30,7 @@ const glyph = glyphs[variant];
   >
     <div class="dialog-title font-chrome">
       <span id={`${id}-title`} class="dt-text">{title}</span>
-      <button class="dt-close bevel-raised" data-close-dialog aria-label="Close">✕</button>
+      <button class="dt-close" data-close-dialog aria-label="Close">✕</button>
     </div>
     <div class="dialog-content">
       {glyph && <span class:list={['dlg-icon', `is-${variant}`]} aria-hidden="true">{glyph}</span>}
@@ -39,7 +39,7 @@ const glyph = glyphs[variant];
       </div>
     </div>
     <div class="dialog-actions">
-      <button class="dlg-btn bevel-raised font-chrome" data-close-dialog autofocus>OK</button>
+      <button class="dlg-btn" data-close-dialog autofocus>OK</button>
     </div>
   </div>
 </div>
@@ -52,22 +52,23 @@ const glyph = glyphs[variant];
     display: grid;
     place-items: center;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(74, 60, 40, 0.28);
+    backdrop-filter: blur(2px);
   }
   .dialog-overlay[hidden] {
     display: none;
   }
   .dialog {
-    width: min(380px, 92vw);
-    background: var(--win-grey);
-    padding: 3px;
-    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
-    animation: dlg-in 120ms ease;
+    width: min(400px, 92vw);
+    background: var(--chrome);
+    padding: 8px;
+    box-shadow: var(--shadow-lift);
+    animation: dlg-in 180ms cubic-bezier(0.32, 0.72, 0.35, 1);
   }
   @keyframes dlg-in {
     from {
-      transform: scale(0.94);
-      opacity: 0.4;
+      transform: translateY(8px) scale(0.96);
+      opacity: 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -76,72 +77,71 @@ const glyph = glyphs[variant];
     }
   }
   .dialog-title {
-    height: var(--titlebar-h);
+    min-height: var(--titlebar-h);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 3px 4px 3px 6px;
-    color: #fff;
-    background: linear-gradient(
-      90deg,
-      var(--win-navy) 0%,
-      var(--win-luna-blue) 70%,
-      var(--win-navy-2) 100%
-    );
+    gap: 10px;
+    padding: 4px 6px 4px 14px;
+    border-radius: var(--radius-inner);
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, #ffdfb9 100%);
   }
   .dt-text {
-    font-size: 10px;
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+    font-size: 0.9rem;
+    font-weight: 700;
   }
   .dt-close {
-    width: 20px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
+    flex: none;
     display: grid;
     place-items: center;
-    font-size: 9px;
-    font-weight: bold;
-    color: var(--win-text);
-    background: var(--win-grey);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(74, 70, 64, 0.55);
+    background: #f4aca2;
+    border: 1px solid rgba(120, 96, 60, 0.16);
+    border-radius: 50%;
+    padding: 0;
   }
-  .dt-close:hover {
-    background: #e04a4a;
-    color: #fff;
+  .dt-close:active {
+    transform: scale(0.9);
   }
   .dialog-content {
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: flex-start;
-    background: var(--win-grey);
-    padding: 20px 18px 16px;
+    background: var(--paper);
+    border-radius: var(--radius-sm);
+    margin-top: 6px;
+    padding: 20px 18px;
   }
   .dlg-icon {
     flex: none;
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     display: grid;
     place-items: center;
     border-radius: 50%;
-    font-family: Georgia, serif;
-    font-size: 22px;
-    font-weight: bold;
-    font-style: italic;
+    font-family: var(--font-chrome);
+    font-size: 1.25rem;
+    font-weight: 800;
     color: #fff;
-    background: var(--win-luna-blue);
-    border: 2px solid;
-    border-color: var(--win-light) var(--win-darker) var(--win-darker) var(--win-light);
+    background: var(--sky);
   }
   .dlg-icon.is-warning {
-    background: #e0b020;
-    color: #000;
+    background: #f3c164;
+    color: var(--ink);
   }
   .dlg-icon.is-info {
-    background: var(--win-navy);
+    background: var(--accent);
   }
   .dialog-body {
     font-family: var(--font-body);
     font-size: 1rem;
-    line-height: 1.5;
-    color: var(--win-text);
+    line-height: 1.6;
+    color: var(--ink);
   }
   .dialog-body :global(p) {
     margin: 0 0 0.5rem;
@@ -150,30 +150,35 @@ const glyph = glyphs[variant];
     margin-bottom: 0;
   }
   .dialog-body :global(a) {
-    color: var(--win-link);
-    font-weight: bold;
+    color: var(--accent-2);
+    font-weight: 700;
   }
   .dialog-actions {
     display: flex;
     justify-content: center;
     gap: 8px;
-    padding: 8px;
-    background: var(--win-grey);
+    padding: 10px 2px 2px;
   }
   .dlg-btn {
-    min-width: 80px;
-    min-height: 26px;
-    padding: 4px 16px;
-    font-size: 10px;
-    color: var(--win-text);
-    background: var(--win-grey);
+    min-width: 120px;
+    min-height: var(--tap);
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 0 var(--line-2);
+    transition: transform var(--transition), background var(--transition),
+      box-shadow var(--transition);
+  }
+  .dlg-btn:hover {
+    background: var(--accent-soft);
   }
   .dlg-btn:active {
-    border-color: var(--win-darker) var(--win-light) var(--win-light) var(--win-darker);
-  }
-  .dlg-btn:focus-visible {
-    outline: 1px dotted var(--win-text);
-    outline-offset: -5px;
+    transform: translateY(2px);
+    box-shadow: 0 0 0 var(--line-2);
   }
 </style>
 

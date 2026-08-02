@@ -1,62 +1,102 @@
 /* =====================================================================
-   My Windows 95/XP design system.
-   Global tokens, reset, typography, and reusable chrome utilities.
+   Soft desktop design system.
+   Still a desktop metaphor, just warm paper instead of grey plastic:
+   rounded corners, hairline borders, one soft drop shadow, no 3D bevels.
+   Global tokens, reset, typography, and reusable surface utilities.
    ===================================================================== */
 
 /* ----- Design tokens ------------------------------------------------ */
 :root {
-  /* Core Win95 greys */
-  --win-grey: #c0c0c0;
-  --win-grey-light: #dfdfdf;
-  --win-dark: #808080;
-  --win-darker: #404040; /* outer bevel shadow */
+  /* Paper + ink */
+  --paper: #fffdf8; /* window bodies, content wells */
+  --paper-2: #fdf6ea; /* subtle fills, striped rows */
+  --chrome: #f8f1e4; /* window frames, taskbar, buttons */
+  --chrome-2: #f1e7d5; /* pressed / hovered chrome */
+  --ink: #4a4640;
+  --ink-soft: #8b8478; /* captions, meta, disabled */
+
+  /* Hairlines */
+  --line: #e9e0cf;
+  --line-2: #dbcfb7;
+
+  /* Warm accent + friends */
+  --accent: #ef9236;
+  --accent-2: #d97a1e;
+  --accent-soft: #ffe9cd;
+  --mint: #7ec1a5;
+  --sky: #8fbcdf;
+  --blush: #ef9f95;
+
+  /* Legacy aliases: older markup still references these names. */
+  --win-grey: var(--chrome);
+  --win-grey-light: var(--paper-2);
+  --win-dark: var(--line-2);
+  --win-darker: var(--ink-soft);
   --win-light: #ffffff;
-
-  /* Title bar / accents */
-  --win-navy: #000080; /* classic Win95 active title bar */
-  --win-navy-2: #1084d0; /* gradient end for title bars */
-  --win-luna-blue: #1f6fbf; /* XP Luna accent */
-  --win-luna-blue-2: #2a8ae0;
-  --win-luna-green: #3a6e3a; /* start button / success */
-  --win-luna-green-2: #57a05a;
-
-  /* Content + text */
-  --win-text: #000000;
-  --win-text-disabled: #808080;
-  --win-white: #ffffff;
-  --win-selection: #000080;
-  --win-selection-text: #ffffff;
-  --win-link: #0000cc;
-  --win-link-visited: #551a8b;
+  --win-navy: var(--accent-2);
+  --win-navy-2: var(--accent);
+  --win-luna-blue: var(--accent);
+  --win-luna-blue-2: var(--accent-soft);
+  --win-luna-green: var(--mint);
+  --win-luna-green-2: #6bb494;
+  --win-text: var(--ink);
+  --win-text-disabled: var(--ink-soft);
+  --win-white: var(--paper);
+  --win-selection: var(--accent-soft);
+  --win-selection-text: var(--ink);
+  --win-link: var(--accent-2);
+  --win-link-visited: #b06a3c;
 
   /* Status colours */
-  --status-active: #1f8b24;
-  --status-shipped: #1f6fbf;
-  --status-archived: #808080;
+  --status-active: #4fa07c;
+  --status-shipped: var(--accent-2);
+  --status-archived: var(--ink-soft);
 
-  /* BSOD */
-  --bsod-blue: #0000aa;
+  /* Full-screen error page */
+  --bsod-blue: #5b7fa8;
 
-  /* Tooltip */
-  --tooltip-bg: #ffffe1;
-  --tooltip-border: #000000;
+  /* Tooltip / callout */
+  --tooltip-bg: var(--accent-soft);
+  --tooltip-border: var(--line-2);
 
-  /* Fonts */
-  --font-chrome: 'Press Start 2P', 'Silkscreen', 'Courier New', monospace;
-  --font-body: Georgia, 'Times New Roman', 'Times', serif;
-  --font-ui: 'Tahoma', 'Segoe UI', system-ui, sans-serif; /* in-window labels */
-  --font-mono: 'Courier New', 'Consolas', monospace;
+  /* Fonts — one rounded sans, plus the system mono for small labels. */
+  --font-chrome: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  --font-ui: 'Nunito', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Consolas', monospace;
+
+  /* Shape */
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 7px;
+  /* Radius for a bar nested inside a padded surface (outer radius - padding). */
+  --radius-inner: 8px;
+  --radius-pill: 999px;
+  --radius-xp: var(--radius-sm); /* legacy alias */
+
+  /* One shadow, used everywhere something floats. */
+  --shadow: 0 1px 2px rgba(120, 96, 60, 0.08), 0 10px 24px -14px rgba(120, 96, 60, 0.5);
+  --shadow-lift: 0 2px 4px rgba(120, 96, 60, 0.1), 0 18px 36px -18px rgba(120, 96, 60, 0.55);
 
   /* Sizing */
-  --bevel: 2px;
-  --taskbar-h: 40px;
-  --titlebar-h: 28px;
-  --radius-xp: 4px;
+  --taskbar-h: 52px;
+  --titlebar-h: 40px;
+  /* Room the fixed taskbar needs at the bottom of scrollable pages. */
+  --taskbar-gap: calc(var(--taskbar-h) + env(safe-area-inset-bottom, 0px));
+  --tap: 44px; /* minimum comfortable touch target */
 
   /* Motion */
-  --transition: 120ms ease;
+  --transition: 160ms cubic-bezier(0.32, 0.72, 0.35, 1);
 
   color-scheme: light;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --taskbar-h: 58px;
+    --titlebar-h: 44px;
+    --radius: 14px;
+  }
 }
 
 /* ----- Reset -------------------------------------------------------- */
@@ -76,13 +116,17 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  /* Nothing on this site is meant to scroll sideways. */
+  overflow-x: hidden;
 }
 
 body {
   min-height: 100vh;
   min-height: 100dvh;
-  color: var(--win-text);
-  line-height: 1.5;
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 img,
@@ -94,7 +138,7 @@ canvas {
 }
 
 a {
-  color: var(--win-link);
+  color: var(--accent-2);
 }
 a:visited {
   color: var(--win-link-visited);
@@ -105,72 +149,79 @@ button {
   cursor: pointer;
 }
 
+/* Kill the grey flash when tapping on iOS/Android; we style :active instead. */
+a,
+button,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 ul,
 ol {
   list-style-position: inside;
 }
 
 ::selection {
-  background: var(--win-selection);
-  color: var(--win-selection-text);
+  background: var(--accent-soft);
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px dotted var(--win-text);
-  outline-offset: 1px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
-/* Render pixel art crisply, but only where we opt in. */
+/* Kept for the pixel-art SVG icons, which still want crisp edges. */
 .pixelated {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
 
-/* ----- Bevelled border utilities ------------------------------------ */
-/* Raised: buttons, window chrome, taskbar, panels that "stick out". */
-.bevel-raised {
-  border-style: solid;
-  border-width: var(--bevel);
-  border-color: var(--win-light) var(--win-darker) var(--win-darker)
-    var(--win-light);
-  box-shadow: inset 1px 1px 0 var(--win-grey-light),
-    inset -1px -1px 0 var(--win-dark);
-  background: var(--win-grey);
+/* ----- Surface utilities -------------------------------------------- */
+/* `surface` = something that sits on top: windows, buttons, taskbar, chips. */
+.surface {
+  background: var(--chrome);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-/* Depressed: inset panels, recessed content wells, active buttons. */
-.bevel-sunken {
-  border-style: solid;
-  border-width: var(--bevel);
-  border-color: var(--win-darker) var(--win-light) var(--win-light)
-    var(--win-darker);
-  box-shadow: inset 1px 1px 0 var(--win-dark),
-    inset -1px -1px 0 var(--win-grey-light);
-  background: var(--win-white);
+/* `well` = recessed content area: window bodies, image frames, inputs. */
+.well {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
 }
 
-/* Thin single-line groove used for separators / field outlines. */
-.bevel-thin {
-  border: 1px solid;
-  border-color: var(--win-dark) var(--win-light) var(--win-light)
-    var(--win-dark);
+/* `hairline` = a plain outlined card, no shadow. */
+.hairline {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
 }
 
 /* ----- Typography helpers ------------------------------------------- */
+/* The bolder UI voice: window titles, section heads, chips. */
 .font-chrome {
   font-family: var(--font-chrome);
-  letter-spacing: 0;
-  /* Pixel fonts render best with crisp anti-aliasing off where supported. */
-  -webkit-font-smoothing: none;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
-/* Readable long-form content inside a white window body. */
+/* Small monospace labels: dates, counts, status cells. */
+.font-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+
+/* Readable long-form content inside a window body. */
 .prose {
   font-family: var(--font-body);
   font-size: 1.0625rem; /* ~17px */
-  line-height: 1.7;
-  color: var(--win-text);
-  background: var(--win-white);
+  line-height: 1.75;
+  color: var(--ink);
   max-width: 68ch;
 }
 .prose > * + * {
@@ -180,6 +231,7 @@ ol {
 .prose h2,
 .prose h3 {
   font-family: var(--font-body);
+  font-weight: 800;
   line-height: 1.25;
   margin-top: 1.6em;
 }
@@ -187,26 +239,29 @@ ol {
   font-size: 1.9rem;
 }
 .prose h2 {
-  font-size: 1.5rem;
-  border-bottom: 1px solid var(--win-grey);
-  padding-bottom: 0.2em;
+  font-size: 1.45rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.3em;
 }
 .prose h3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 .prose a {
   text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
 }
 .prose img {
-  margin: 1.25rem 0;
-  border: 2px solid;
-  border-color: var(--win-darker) var(--win-light) var(--win-light)
-    var(--win-darker);
+  margin: 1.5rem 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
 }
 .prose blockquote {
-  border-left: 4px solid var(--win-navy);
-  padding-left: 1rem;
-  color: #333;
+  border-left: 3px solid var(--accent);
+  background: var(--paper-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0.75rem 1rem;
+  color: var(--ink-soft);
   font-style: italic;
 }
 .prose ul,
@@ -216,21 +271,21 @@ ol {
 }
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
-  background: #f0f0f0;
-  padding: 0.1em 0.35em;
-  border: 1px solid var(--win-dark);
+  font-size: 0.875em;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  padding: 0.1em 0.4em;
 }
 .prose pre {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding: 1rem 1.1rem;
   overflow-x: auto;
-  /* recessed inset code well */
-  border: 2px solid;
-  border-color: var(--win-darker) var(--win-light) var(--win-light)
-    var(--win-darker);
-  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
 }
 .prose pre code {
   background: none;
@@ -239,41 +294,35 @@ ol {
 }
 .prose hr {
   border: none;
-  border-top: 1px solid var(--win-dark);
-  border-bottom: 1px solid var(--win-light);
-  margin: 1.5rem 0;
+  border-top: 1px solid var(--line);
+  margin: 2rem 0;
+}
+/* Long words and code shouldn't blow the layout out sideways on a phone. */
+.prose :where(p, li, h1, h2, h3) {
+  overflow-wrap: anywhere;
 }
 
-/* ----- Custom scrollbars (Win95 chunky style) ----------------------- */
+/* ----- Scrollbars --------------------------------------------------- */
 * {
-  scrollbar-width: auto;
-  scrollbar-color: var(--win-grey) var(--win-grey-light);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
 }
 ::-webkit-scrollbar {
-  width: 17px;
-  height: 17px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--win-grey-light);
-  border: 1px solid var(--win-dark);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--win-grey);
-  border: 2px solid;
-  border-color: var(--win-light) var(--win-darker) var(--win-darker)
-    var(--win-light);
+  background: var(--line-2);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
-::-webkit-scrollbar-button {
-  background: var(--win-grey);
-  border: 2px solid;
-  border-color: var(--win-light) var(--win-darker) var(--win-darker)
-    var(--win-light);
-  display: block;
-  height: 17px;
-  width: 17px;
-}
-::-webkit-scrollbar-corner {
-  background: var(--win-grey);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-soft);
+  background-clip: content-box;
 }
 
 /* ----- Visually hidden (a11y) --------------------------------------- */
@@ -294,11 +343,15 @@ ol {
   left: 8px;
   top: -60px;
   z-index: 1000;
-  padding: 8px 12px;
-  background: var(--win-grey);
-  color: var(--win-text);
+  padding: 10px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow);
   font-family: var(--font-chrome);
-  font-size: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
   transition: top var(--transition);
 }
 .skip-link:focus {
@@ -310,11 +363,28 @@ ol {
   width: 100%;
   max-width: 1100px;
   margin-inline: auto;
-  padding-inline: clamp(0.75rem, 3vw, 2rem);
+  padding-inline: clamp(0.625rem, 3vw, 2rem);
 }
 
 .stack > * + * {
   margin-top: var(--stack-gap, 1rem);
+}
+
+/* Status-bar cells, used by several pages. */
+.status-cell {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-cell.grow {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ----- Reduced motion ----------------------------------------------- */

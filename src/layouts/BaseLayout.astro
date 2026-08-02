@@ -55,7 +55,7 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
     </script>
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#000080" />
+    <meta name="theme-color" content="#f8f1e4" />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Open Graph / Twitter -->
@@ -70,12 +70,12 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <!-- Pixel chrome font (UI labels only). Body uses local Georgia. -->
+    <!-- One rounded sans for the whole site; small labels use the system mono. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
     />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -103,15 +103,14 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
         position: relative;
         min-height: 100vh;
         min-height: 100dvh;
-        /* The Windows-Vista-style aurora wallpaper, done as a pure-CSS
-           gradient so there is no copyrighted asset and nothing to download.
-           Swap for a real image by setting a background-image on .app. */
-        background-color: #0a1b3d;
+        /* Warm paper wallpaper with a few soft colour blooms. Pure CSS, so
+           there's no asset to download and nothing copyrighted. */
+        background-color: #fdf3e3;
         background-image:
-          radial-gradient(120% 80% at 18% 8%, rgba(60, 200, 180, 0.55), transparent 60%),
-          radial-gradient(120% 90% at 82% 0%, rgba(60, 130, 230, 0.6), transparent 55%),
-          radial-gradient(160% 120% at 50% 120%, rgba(20, 60, 140, 0.9), transparent 70%),
-          linear-gradient(160deg, #06122e 0%, #0c2a5e 45%, #07306b 100%);
+          radial-gradient(90% 55% at 10% 4%, rgba(255, 214, 165, 0.6), transparent 62%),
+          radial-gradient(80% 55% at 92% 2%, rgba(178, 213, 235, 0.45), transparent 62%),
+          radial-gradient(120% 80% at 50% 108%, rgba(255, 223, 190, 0.75), transparent 66%),
+          linear-gradient(165deg, #fff7ea 0%, #fdeedd 52%, #f6e5d2 100%);
         background-attachment: fixed;
       }
       .app-main {
@@ -120,7 +119,7 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
         pointer-events: none;
         min-height: 100vh;
         min-height: 100dvh;
-        padding-bottom: calc(var(--taskbar-h) + 1rem);
+        padding-bottom: calc(var(--taskbar-gap) + 1rem);
       }
       .app-main :global(.welcome),
       .app-main :global(.window) {
@@ -128,6 +127,31 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
       }
       .app.no-chrome .app-main {
         padding-bottom: 0;
+      }
+
+      /* Phones: the floating desktop icons stop being wallpaper furniture and
+         become a normal grid under the welcome card, on the home page only.
+         Everywhere else the Start menu is enough. */
+      @media (max-width: 768px) {
+        .app.is-desktop {
+          display: flex;
+          flex-direction: column;
+        }
+        .app.is-desktop .app-main {
+          order: 0;
+          min-height: 0;
+          padding-bottom: 0.5rem;
+        }
+        .app :global(.desktop-shortcuts) {
+          display: none;
+        }
+        .app.is-desktop :global(.desktop-shortcuts) {
+          display: grid;
+          order: 1;
+          position: static;
+          /* Extra room so the collapsed music pill never lands on an icon. */
+          padding-bottom: calc(var(--taskbar-gap) + 4.5rem);
+        }
       }
     </style>
   </body>

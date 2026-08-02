@@ -5,14 +5,18 @@ import { SITE } from '../consts';
 
 <BaseLayout title={SITE.name} description={SITE.description} bodyClass="is-desktop">
   <div class="desktop">
-    <div class="welcome bevel-raised" role="note">
-      <div class="welcome-bar font-chrome">Welcome.txt - Notepad</div>
+    <div class="welcome surface" role="note">
+      <div class="welcome-bar font-chrome">
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        Welcome.txt
+      </div>
       <div class="welcome-body">
-        <p class="hi font-chrome">Hi, I'm {SITE.name}.</p>
+        <p class="hi">hi! i'm {SITE.name.split(' ')[0]}</p>
+        <p class="role">{SITE.tagline}</p>
         <p>
-          {SITE.tagline}. This is my corner of the web, dressed up like an old
-          Windows desktop. Double-click an icon to explore my artwork, code
-          projects, and writing, or hit <strong>Start</strong> in the corner.
+          This is my corner of the web, dressed up like a cosy little desktop.
+          Open an icon to wander through my artwork, code projects, and
+          writing, or tap <strong>Start</strong> down in the corner.
         </p>
       </div>
     </div>
@@ -21,8 +25,7 @@ import { SITE } from '../consts';
 
 <style>
   .desktop {
-    min-height: calc(100vh - var(--taskbar-h) - 1rem);
-    min-height: calc(100dvh - var(--taskbar-h) - 1rem);
+    min-height: calc(100dvh - var(--taskbar-gap) - 1rem);
     display: grid;
     grid-template-columns: 1fr;
     align-items: start;
@@ -32,42 +35,72 @@ import { SITE } from '../consts';
   }
   .welcome {
     justify-self: end;
-    width: min(360px, 90vw);
+    width: min(380px, 90vw);
     margin-top: 1rem;
-    padding: 3px;
-    background: var(--win-grey);
+    padding: 8px;
   }
   .welcome-bar {
-    font-size: 9px;
-    color: #fff;
-    padding: 4px 6px;
-    background: linear-gradient(90deg, var(--win-navy), var(--win-luna-blue));
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--ink);
+    padding: 8px 12px;
+    border-radius: var(--radius-inner);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, #ffdfb9 100%);
+  }
+  /* Decorative traffic lights, matching the real window controls. */
+  .dots {
+    display: inline-flex;
+    gap: 5px;
+  }
+  .dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #f8cd82;
+  }
+  .dots i:nth-child(2) {
+    background: #a5d8bd;
+  }
+  .dots i:nth-child(3) {
+    background: #f4aca2;
   }
   .welcome-body {
-    background: var(--win-white);
-    margin-top: 3px;
-    padding: 14px 16px;
+    background: var(--paper);
+    border-radius: var(--radius-sm);
+    margin-top: 6px;
+    padding: 20px 22px;
     font-family: var(--font-body);
-    line-height: 1.6;
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    line-height: 1.7;
+    color: var(--ink);
   }
   .hi {
-    font-size: 12px;
-    margin-bottom: 10px;
-    color: var(--win-navy);
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .role {
+    margin-top: 2px;
+    margin-bottom: 14px;
+    color: var(--accent-2);
+    font-weight: 700;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .desktop {
-      grid-template-columns: 1fr;
+      min-height: 0;
       align-content: start;
       gap: 1rem;
+      padding: 1rem clamp(0.625rem, 3vw, 2rem) 0.5rem;
     }
     .welcome {
       justify-self: stretch;
       width: 100%;
+      margin-top: 0.25rem;
+    }
+    .welcome-body {
+      padding: 18px;
     }
   }
 </style>

@@ -10,51 +10,73 @@ interface Props {
 const { closeHref = '/' } = Astro.props;
 ---
 
-<div class="controls font-chrome" aria-hidden="false">
-  <button type="button" class="ctrl bevel-raised" data-min aria-label="Minimise"
-    >_</button
+<div class="controls" aria-hidden="false">
+  <button type="button" class="ctrl ctrl-min" data-min aria-label="Minimise"
+    >–</button
   >
-  <button
-    type="button"
-    class="ctrl bevel-raised"
-    data-max
-    aria-label="Maximise"
-    >▢</button
+  <button type="button" class="ctrl ctrl-max" data-max aria-label="Maximise"
+    >□</button
   >
-  <a class="ctrl ctrl-close bevel-raised" href={closeHref} aria-label="Close window"
-    >✕</a
-  >
+  <a class="ctrl ctrl-close" href={closeHref} aria-label="Close window">✕</a>
 </div>
 
 <style>
   .controls {
     display: flex;
-    gap: 2px;
+    gap: 6px;
     align-items: center;
   }
+  /* Soft pastel dots. The glyph stays faint until you hover, so the chrome
+     reads as decoration rather than a row of shouting buttons. */
   .ctrl {
-    width: 20px;
-    height: 18px;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    flex: none;
     display: grid;
     place-items: center;
-    font-size: 9px;
+    border: 1px solid rgba(120, 96, 60, 0.16);
+    border-radius: 50%;
+    font-family: var(--font-chrome);
+    font-size: 0.7rem;
+    font-weight: 700;
     line-height: 1;
-    color: var(--win-text);
+    color: rgba(74, 70, 64, 0);
     text-decoration: none;
-    background: var(--win-grey);
     padding: 0;
+    transition: color var(--transition), transform var(--transition);
   }
-  .ctrl:active {
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
-    box-shadow: inset 1px 1px 0 var(--win-dark);
+  /* Comfortable tap area without a comically large dot. */
+  .ctrl::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .ctrl-min {
+    background: #f8cd82;
+  }
+  .ctrl-max {
+    background: #a5d8bd;
   }
   .ctrl-close {
-    font-weight: bold;
+    background: #f4aca2;
   }
-  .ctrl-close:hover {
-    background: #e04a4a;
-    color: #fff;
+  .controls:hover .ctrl,
+  .ctrl:focus-visible {
+    color: rgba(74, 70, 64, 0.65);
+  }
+  .ctrl:active {
+    transform: scale(0.9);
+  }
+  @media (max-width: 640px) {
+    .ctrl {
+      width: 24px;
+      height: 24px;
+    }
+    /* No hover on touch, so keep the glyphs legible. */
+    .ctrl {
+      color: rgba(74, 70, 64, 0.5);
+    }
   }
 </style>
 <script>

@@ -41,8 +41,8 @@ const posts = (
   </div>
 
   <Fragment slot="statusbar">
-    <span class="status-cell bevel-sunken">{posts.length} document(s)</span>
-    <span class="status-cell bevel-sunken grow">Blog</span>
+    <span class="status-cell">{posts.length} document(s)</span>
+    <span class="status-cell grow">Blog</span>
   </Fragment>
 </WindowLayout>
 
@@ -51,38 +51,38 @@ const posts = (
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--win-grey);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
   }
   .intro h1 {
-    font-size: 13px;
-    color: var(--win-navy);
+    font-size: 1.5rem;
+    font-weight: 800;
   }
   .rss {
+    flex: none;
     font-family: var(--font-chrome);
-    font-size: 8px;
-    padding: 4px 8px;
-    color: #fff;
-    background: #e08a1e;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 7px 14px;
+    color: var(--accent-2);
+    background: var(--accent-soft);
+    border-radius: var(--radius-pill);
     text-decoration: none;
-    border: 2px solid;
-    border-color: #f3b765 #8a5410 #8a5410 #f3b765;
+    transition: background var(--transition), color var(--transition);
+  }
+  .rss:hover {
+    background: var(--accent);
+    color: #fff;
   }
   .list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
   .empty {
     padding: 1.5rem 0;
-  }
-  .status-cell {
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    font-family: var(--font-ui);
-  }
-  .status-cell.grow {
-    flex: 1;
   }
 </style>

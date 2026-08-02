@@ -17,21 +17,28 @@ const shortcuts = [
   .desktop-shortcuts {
     position: fixed;
     left: 1.25rem;
-    bottom: calc(var(--taskbar-h) + 1.25rem);
+    bottom: calc(var(--taskbar-gap) + 1.25rem);
     z-index: 1;
     display: grid;
-    grid-template-columns: repeat(2, 92px);
+    grid-template-columns: repeat(2, 96px);
     gap: 6px;
     align-content: start;
   }
 
-  @media (max-width: 640px) {
+  /* BaseLayout drops these into the page flow at this width; see its
+     `.app.is-desktop` block. Two comfortable columns of cards. */
+  @media (max-width: 768px) {
     .desktop-shortcuts {
-      left: 1rem;
-      bottom: calc(var(--taskbar-h) + 1rem);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      width: 100%;
+      padding-inline: clamp(0.625rem, 3vw, 2rem);
+    }
+  }
+
+  @media (max-width: 380px) {
+    .desktop-shortcuts {
       grid-template-columns: 1fr;
-      gap: 2px;
-      width: min(260px, calc(100vw - 2rem));
     }
   }
 </style>

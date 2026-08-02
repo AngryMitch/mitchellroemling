@@ -14,7 +14,7 @@ const activeLabel = active ? active.label : pathname === '/' ? 'Desktop' : 'Wind
 const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 ---
 
-<footer class="taskbar bevel-raised">
+<footer class="taskbar">
   <button
     id="start-button"
     type="button"
@@ -42,7 +42,7 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
     </button>
   </div>
 
-  <div class="tray bevel-sunken">
+  <div class="tray">
     <time id="taskbar-clock" class="clock font-chrome" datetime="">--:-- --</time>
   </div>
 
@@ -56,38 +56,48 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
     right: 0;
     bottom: 0;
     z-index: 150;
-    height: var(--taskbar-h);
+    min-height: var(--taskbar-h);
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 4px;
-    background: var(--win-grey);
+    gap: 8px;
+    padding: 6px 10px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    /* A floating shelf rather than a bar welded to the bottom edge. */
+    border: none;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    background: rgba(255, 253, 248, 0.86);
+    backdrop-filter: blur(12px) saturate(1.2);
+    box-shadow: 0 -6px 24px -18px rgba(120, 96, 60, 0.9);
   }
   .start-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    height: 30px;
-    padding: 0 10px;
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--win-text);
-    background: var(--win-grey);
-    border: 2px solid;
-    border-color: var(--win-light) var(--win-darker) var(--win-darker)
-      var(--win-light);
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 16px 0 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--accent-soft);
+    border: 1px solid #eccc9f;
+    border-radius: var(--radius-pill);
+    transition: background var(--transition), transform var(--transition);
   }
-  .start-btn[aria-expanded='true'],
+  .start-btn img {
+    width: 20px;
+    height: 20px;
+  }
+  .start-btn[aria-expanded='true'] {
+    background: var(--accent);
+    border-color: var(--accent-2);
+    color: #fff;
+  }
   .start-btn:active {
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    transform: scale(0.97);
   }
   .divider {
-    width: 2px;
-    align-self: stretch;
-    margin: 3px 2px;
-    border-left: 1px solid var(--win-dark);
-    border-right: 1px solid var(--win-light);
+    display: none;
   }
   .task-buttons {
     flex: 1;
@@ -99,26 +109,32 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
   .task-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    height: 30px;
-    padding: 0 10px;
-    max-width: 220px;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    max-width: 240px;
+    min-width: 0;
     font-family: var(--font-ui);
     font-size: 0.85rem;
-    color: var(--win-text);
+    font-weight: 600;
+    color: var(--ink);
     cursor: pointer;
     text-align: left;
-    /* "pressed" (open window) look by default */
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
-    background: #b8b8b8;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--paper-2);
+    transition: background var(--transition), opacity var(--transition);
   }
-  /* Minimised: the button pops out to a raised, unpressed state. */
+  .task-btn img {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  /* Minimised: the chip fades back instead of popping out. */
   .task-btn.is-minimized {
-    border-color: var(--win-light) var(--win-darker) var(--win-darker)
-      var(--win-light);
-    background: var(--win-grey);
+    background: transparent;
+    color: var(--ink-soft);
+    opacity: 0.7;
   }
   .task-label {
     white-space: nowrap;
@@ -128,17 +144,28 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
   .tray {
     display: flex;
     align-items: center;
-    height: 30px;
-    padding: 0 10px;
+    min-height: 36px;
+    padding: 0 14px;
+    background: transparent;
+    border-color: transparent;
   }
   .clock {
-    font-size: 10px;
-    color: var(--win-text);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-soft);
     white-space: nowrap;
   }
-  @media (max-width: 520px) {
+  /* Narrow phones: the icon in the task chip is enough, keep "Start" readable. */
+  @media (max-width: 480px) {
     .task-label {
       display: none;
+    }
+    .task-btn {
+      padding: 0 12px;
+    }
+    .tray {
+      padding: 0 6px;
     }
   }
 </style>

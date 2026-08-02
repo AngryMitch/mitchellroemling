@@ -43,18 +43,20 @@ const idFor = (label: string) => `mb-${label.toLowerCase()}`;
   /* Works for <button> menu items: strip native chrome, inherit the pixel
      font + size from the surrounding .menubar. */
   .menu-item {
-    padding: 2px 6px;
+    padding: 5px 11px;
     font: inherit;
+    font-weight: 600;
     line-height: inherit;
-    color: inherit;
+    color: var(--ink-soft);
     background: transparent;
     border: none;
+    border-radius: var(--radius-pill);
     cursor: pointer;
+    transition: background var(--transition), color var(--transition);
   }
   .menu-item:hover,
   .menu-item:focus-visible {
-    background: var(--win-selection);
-    color: var(--win-selection-text);
-    outline: none;
+    background: var(--accent-soft);
+    color: var(--ink);
   }
 </style>

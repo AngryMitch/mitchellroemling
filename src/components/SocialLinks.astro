@@ -26,7 +26,7 @@ const ICONS: Record<string, string> = {
     SOCIAL_LINKS.map((s) => (
       <li>
         <a href={s.href} class="social-link" rel="me noopener">
-          <span class="ico bevel-raised" aria-hidden="true">
+          <span class="ico surface" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="18" height="18" role="img">
               <path d={ICONS[s.icon]} fill="currentColor" />
             </svg>
@@ -57,38 +57,53 @@ const ICONS: Record<string, string> = {
   .social-link {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    min-height: var(--tap);
     text-decoration: none;
-    color: var(--win-text);
-    padding: 4px;
+    color: var(--ink);
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--radius-pill);
+    transition: background var(--transition);
+  }
+  .social-link:hover {
+    background: var(--paper-2);
   }
   .social-link:hover .label {
-    text-decoration: underline;
+    color: var(--accent-2);
   }
   .social-link:hover .ico {
-    background: var(--win-luna-blue);
+    background: var(--accent);
     color: #fff;
   }
   .ico {
     display: grid;
     place-items: center;
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     flex: none;
-    background: var(--win-grey);
-    color: var(--win-navy);
+    border: none;
+    border-radius: 50%;
+    box-shadow: none;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    transition: background var(--transition), color var(--transition);
   }
   .meta {
     display: flex;
     flex-direction: column;
-    line-height: 1.3;
+    line-height: 1.35;
+    min-width: 0;
   }
   .label {
-    font-size: 9px;
+    font-size: 0.92rem;
+    font-weight: 700;
   }
   .handle {
-    font-size: 0.85rem;
-    color: #444;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .inline .handle {
     display: none;

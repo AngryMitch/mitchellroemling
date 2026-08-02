@@ -59,57 +59,65 @@ const counts = {
   </div>
 
   <Fragment slot="statusbar">
-    <span class="status-cell bevel-sunken"><span id="shown-count">{counts.all}</span> object(s)</span>
-    <span class="status-cell bevel-sunken grow">My Artwork</span>
+    <span class="status-cell"><span id="shown-count">{counts.all}</span> object(s)</span>
+    <span class="status-cell grow">My Artwork</span>
   </Fragment>
 </WindowLayout>
 
 <style>
+  /* Scrolls sideways on a phone instead of wrapping into four ragged rows. */
   .toolbar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding-bottom: 12px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--win-grey);
+    gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toolbar::-webkit-scrollbar {
+    display: none;
   }
   .filter {
-    font-size: 9px;
+    flex: none;
+    min-height: 38px;
+    font-size: 0.85rem;
+    font-weight: 700;
     text-transform: capitalize;
-    padding: 6px 10px;
-    color: var(--win-text);
-    background: var(--win-grey);
-    border: 2px solid;
-    border-color: var(--win-light) var(--win-darker) var(--win-darker)
-      var(--win-light);
+    padding: 6px 16px;
+    color: var(--ink-soft);
+    background: var(--paper-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    transition: background var(--transition), color var(--transition);
+  }
+  .filter:hover {
+    background: var(--accent-soft);
+    color: var(--ink);
   }
   .filter.is-active {
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
-    background: #b5b5b5;
+    background: var(--accent);
+    border-color: var(--accent-2);
+    color: #fff;
   }
   .count {
-    color: #555;
-  }
-  .filter.is-active .count {
-    color: #333;
+    font-weight: 400;
+    opacity: 0.7;
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
   }
   .empty,
   .no-results {
     padding: 1.5rem 0;
   }
-  .status-cell {
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    font-family: var(--font-ui);
-  }
-  .status-cell.grow {
-    flex: 1;
+  @media (max-width: 520px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
   }
 </style>
 

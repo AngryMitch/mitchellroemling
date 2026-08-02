@@ -57,7 +57,7 @@ const dateStr = data.date.toLocaleDateString('en-US', {
 
     {
       data.cover && (
-        <figure class="cover bevel-sunken">
+        <figure class="cover well">
           <Image
             src={data.cover}
             alt=""
@@ -79,8 +79,8 @@ const dateStr = data.date.toLocaleDateString('en-US', {
           <h2 class="strip-head font-chrome">Featured artwork</h2>
           <div class="strip-grid">
             {related.map((art) => (
-              <a class="strip-item bevel-thin" href={`/gallery/${art.id}`}>
-                <span class="strip-frame bevel-sunken">
+              <a class="strip-item hairline" href={`/gallery/${art.id}`}>
+                <span class="strip-frame well">
                   <Image
                     src={art.data.thumbnail ?? art.data.image}
                     alt={art.data.title}
@@ -118,20 +118,22 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     gap: 1.25rem;
   }
   .meta {
-    font-size: 9px;
-    color: var(--win-navy);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink-soft);
   }
   .title {
     font-family: var(--font-body);
     font-size: 2.1rem;
-    line-height: 1.15;
+    font-weight: 800;
+    line-height: 1.2;
     margin: 0.5rem 0;
   }
   .lede {
     max-width: none;
-    font-size: 1.2rem;
-    color: #333;
-    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--ink-soft);
   }
   .tags {
     display: flex;
@@ -139,18 +141,21 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     gap: 8px;
     list-style: none;
     padding: 0;
-    margin-top: 0.75rem;
+    margin-top: 0.9rem;
   }
   .tag {
-    font-size: 0.78rem;
-    color: #555;
-    padding: 2px 8px;
-    background: #f0f0f0;
-    border: 1px solid var(--win-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding: 4px 11px;
+    background: var(--paper-2);
+    border-radius: var(--radius-pill);
   }
   .cover {
-    padding: 8px;
-    background: var(--win-white);
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--paper-2);
   }
   .cover-img {
     width: 100%;
@@ -161,40 +166,45 @@ const dateStr = data.date.toLocaleDateString('en-US', {
   }
   .gallery-strip {
     margin-top: 1rem;
-    padding: 1rem;
-    background: #f3f3f3;
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    padding: 1.25rem;
+    background: var(--paper-2);
+    border-radius: var(--radius-sm);
   }
   .strip-head {
-    font-size: 10px;
-    color: var(--win-navy);
-    margin-bottom: 0.9rem;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
   }
   .strip-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 8px;
+    gap: 10px;
   }
   .strip-item {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: 6px;
-    background: var(--win-white);
+    gap: 7px;
+    padding: 8px;
+    background: var(--paper);
+    border: none;
+    border-radius: var(--radius-sm);
     text-decoration: none;
-    color: var(--win-text);
-    text-align: center;
+    color: var(--ink);
+    transition: box-shadow var(--transition), transform var(--transition);
   }
   .strip-item:hover {
-    outline: 2px solid var(--win-luna-blue);
+    box-shadow: var(--shadow);
+  }
+  .strip-item:active {
+    transform: scale(0.98);
   }
   .strip-frame {
     aspect-ratio: 1;
     overflow: hidden;
-    padding: 3px;
-    background: var(--win-white);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: var(--paper-2);
   }
   .strip-img {
     width: 100%;
@@ -202,32 +212,58 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     object-fit: cover;
   }
   .strip-cap {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 700;
   }
   .pager {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-top: 0.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--win-grey);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
   }
   .pager-side {
     display: flex;
+    min-width: 0;
   }
   .pager-side.right {
     justify-content: flex-end;
   }
+  /* Long neighbour titles must not stretch the pager wider than the window. */
+  .pager :global(.btn) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    line-height: var(--tap);
+    padding-block: 0;
+  }
   @media (max-width: 560px) {
     .title {
-      font-size: 1.7rem;
+      font-size: 1.6rem;
+    }
+    .lede {
+      font-size: 1.05rem;
+    }
+    .gallery-strip {
+      padding: 1rem;
+    }
+    .strip-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
     .pager {
       grid-template-columns: 1fr;
+      gap: 8px;
     }
     .pager-side.right {
       justify-content: flex-start;
+    }
+    .pager :global(.btn) {
+      width: 100%;
+      text-align: center;
     }
   }
 </style>

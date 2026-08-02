@@ -24,7 +24,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <style is:global>
   /* The <body> itself carries the `.app` class, so target it directly. */
   body.bsod-body {
-    background: var(--bsod-blue) !important;
+    background: linear-gradient(165deg, #6d8fb4 0%, #5b7fa8 55%, #4e6f95 100%) !important;
   }
   body.bsod-body .app-main {
     padding-bottom: 0;
@@ -32,39 +32,43 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </style>
 
 <style>
+  /* Still the blue-screen joke, just told at a much lower volume. */
   .bsod {
-    min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 0.4rem;
-    max-width: 760px;
+    max-width: 680px;
     margin: 0 auto;
-    padding: 2rem 1.25rem;
-    color: #fff;
+    padding: 2rem clamp(1.25rem, 5vw, 2rem);
+    color: rgba(255, 255, 255, 0.92);
     font-family: var(--font-mono);
-    font-size: clamp(0.9rem, 2.5vw, 1.05rem);
-    line-height: 1.6;
+    font-size: clamp(0.88rem, 2.5vw, 1rem);
+    line-height: 1.75;
   }
   .art {
     font-family: var(--font-mono);
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 2.25rem;
+    margin-bottom: 1.25rem;
+    opacity: 0.85;
   }
   .head {
     text-align: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
   }
   .inv {
-    background: #aaa;
-    color: var(--bsod-blue);
-    padding: 0 10px;
-    font-weight: bold;
+    background: rgba(255, 255, 255, 0.9);
+    color: #4e6f95;
+    padding: 4px 14px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-chrome);
+    font-weight: 800;
   }
   .bsod a {
     color: #fff;
     text-decoration: underline;
+    text-underline-offset: 3px;
   }
   strong {
     color: #fff;

@@ -54,7 +54,7 @@ const funStats = [
     <section id="panel-about" class="panel" role="tabpanel" aria-labelledby="tab-about">
       <div class="bio-grid">
         <figure class="portrait">
-          <span class="portrait-frame bevel-sunken">
+          <span class="portrait-frame well">
             <Image src={profile} alt={`Portrait of ${SITE.name}`} width={200} height={200} class="pixelated" />
           </span>
           <figcaption class="font-chrome">{SITE.name}</figcaption>
@@ -107,41 +107,43 @@ const funStats = [
   </div>
 
   <Fragment slot="statusbar">
-    <span class="status-cell bevel-sunken">Ready</span>
-    <span class="status-cell bevel-sunken grow">{SITE.email}</span>
+    <span class="status-cell">Ready</span>
+    <span class="status-cell grow">{SITE.email}</span>
   </Fragment>
 </WindowLayout>
 
 <style>
+  /* Segmented control rather than folder tabs. */
   .tabs {
-    display: flex;
-    gap: 3px;
-    margin-bottom: -2px;
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--paper-2);
   }
   .tab {
-    font-size: 9px;
-    padding: 6px 12px;
-    background: var(--win-grey);
-    border: 2px solid;
-    border-color: var(--win-light) var(--win-dark) var(--win-grey) var(--win-light);
-    border-bottom: none;
-    color: var(--win-text);
-    position: relative;
-    top: 0;
+    min-height: 38px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 18px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-pill);
+    color: var(--ink-soft);
+    transition: background var(--transition), color var(--transition);
   }
   .tab[aria-selected='true'] {
-    background: var(--win-white);
-    z-index: 2;
-    font-weight: bold;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(120, 96, 60, 0.12);
   }
   .panel {
-    border-top: 2px solid var(--win-light);
-    padding-top: 1.25rem;
+    padding-top: 1.75rem;
   }
   .bio-grid {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 1.5rem;
+    gap: 1.75rem;
     align-items: start;
   }
   .portrait {
@@ -149,62 +151,80 @@ const funStats = [
   }
   .portrait-frame {
     display: inline-block;
-    padding: 5px;
-    background: var(--win-white);
+    padding: 6px;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    border: none;
+  }
+  .portrait-frame :global(img) {
+    border-radius: calc(var(--radius) - 6px);
   }
   .portrait figcaption {
-    margin-top: 8px;
-    font-size: 9px;
-    color: var(--win-navy);
+    margin-top: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
   }
   .bio {
     max-width: none;
   }
   .section-head {
-    font-size: 12px;
-    margin: 1.75rem 0 0.75rem;
-    color: var(--win-navy);
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 2rem 0 0.9rem;
   }
   .props-table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--font-ui);
     font-size: 0.95rem;
-    background: var(--win-white);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
   }
   .props-table th,
   .props-table td {
     text-align: left;
-    padding: 7px 10px;
-    border: 1px solid var(--win-grey);
+    padding: 11px 14px;
+    border: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .props-table tr:last-child td {
+    border-bottom: none;
   }
   .props-table thead th {
-    background: var(--win-grey);
-    font-family: var(--font-chrome);
-    font-size: 9px;
+    background: var(--paper-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ink-soft);
   }
   .props-table tbody tr:nth-child(even) {
-    background: #f3f3f3;
+    background: var(--paper-2);
+  }
+  .props-table td:last-child {
+    color: var(--ink-soft);
   }
   .hint {
     margin-top: 1rem;
     font-family: var(--font-body);
-    font-style: italic;
-    color: #555;
-  }
-  .status-cell {
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    font-family: var(--font-ui);
-  }
-  .status-cell.grow {
-    flex: 1;
+    color: var(--ink-soft);
   }
   @media (max-width: 560px) {
+    .tabs {
+      display: flex;
+      width: 100%;
+    }
+    .tab {
+      flex: 1;
+      padding: 6px 10px;
+    }
     .bio-grid {
       grid-template-columns: 1fr;
       justify-items: center;
       text-align: center;
+    }
+    .props-table th,
+    .props-table td {
+      padding: 10px;
     }
   }
 </style>

@@ -1,7 +1,11 @@
 /**
- * My website playlist. I add or remove songs by editing this list, the first
- * one loads by default. Each `id` is a YouTube video id: the bit after
- * `watch?v=` (or after `youtu.be/`) in a video's URL.
+ * My website playlist. I add or remove songs by editing this list. Each `id`
+ * is a YouTube video id: the bit after `watch?v=` (or after `youtu.be/`) in a
+ * video's URL.
+ *
+ * The player shuffles one of these in on each fresh visit (the first entry is
+ * only what gets server-rendered before the shuffle runs), so ordering here is
+ * just for my own reading. See MusicPlayer.astro.
  */
 export interface Track {
   /** YouTube video id, e.g. the zjGCjHYNsmQ in youtube.com/watch?v=zjGCjHYNsmQ */
@@ -11,9 +15,18 @@ export interface Track {
 }
 
 export const PLAYLIST: Track[] = [
-  { id: 'zjGCjHYNsmQ', label: 'My current pick' },
+  { id: 'zjGCjHYNsmQ', label: 'toe — サニーボーイ・ラプソディ' },
+  { id: 'ZcS6ix-cIYQ', label: 'toe — LONELINESS WILL SHINE' },
+  { id: 'g3Z9emnvcXM', label: 'カネヨリマサル — 今日の歌' },
+  { id: '03uDc9m4NcQ', label: 'Sunset Rollercoaster — Let There Be Light Again' },
+  { id: '7VYqcCLIx0s', label: '銀杏BOYZ — 少年少女' },
+  { id: 'XOKQluw_YLU', label: '乃紫 (noa) — メガネを外して' },
+  { id: 'y3ClpvabLd0', label: 'Small Leaks Sink Ships — Psychotic Opera' },
+  { id: '-9UhZuM-ADk', label: 'Thesaurus Rex — Buy Your Time' },
+  { id: '0d0FQm5Cx50', label: 'Hotel Mira — Speaking Off the Record' },
+  { id: 'LLOqy8IdLck', label: 'Hotel Mira — Jungle' },
   // I add more like this:
-  // { id: 'anotherVideoId', label: 'Song name' },
+  // { id: 'anotherVideoId', label: 'Artist — Song name' },
 ];
 
 /**

@@ -58,38 +58,45 @@ const trash = [
   .files {
     list-style: none;
     padding: 0;
-    margin-bottom: 1.25rem;
-    border: 2px solid;
-    border-color: var(--win-darker) var(--win-light) var(--win-light)
-      var(--win-darker);
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--paper-2);
   }
   .file {
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-areas: 'icon name size' 'icon note note';
-    gap: 0 10px;
+    gap: 2px 12px;
     align-items: center;
-    padding: 8px 12px;
-    border-bottom: 1px solid #e3e3e3;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
     font-family: var(--font-ui);
+  }
+  .file:last-child {
+    border-bottom: none;
   }
   .file img {
     grid-area: icon;
+    width: 24px;
+    height: 24px;
   }
   .fname {
     grid-area: name;
-    font-weight: bold;
+    font-weight: 700;
+    overflow-wrap: anywhere;
   }
   .fsize {
     grid-area: size;
-    color: #555;
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    white-space: nowrap;
   }
   .fnote {
     grid-area: note;
-    color: #777;
+    color: var(--ink-soft);
     font-size: 0.85rem;
-    font-style: italic;
   }
   .actions {
     display: flex;
@@ -97,10 +104,16 @@ const trash = [
     flex-wrap: wrap;
   }
   .msg {
-    margin-top: 1.25rem;
-    padding: 0.9rem;
+    margin-top: 1.5rem;
+    padding: 1.1rem;
+    border-radius: var(--radius-sm);
     background: var(--tooltip-bg);
-    border: 1px solid var(--tooltip-border);
+    border: 1px solid #f0d8b4;
+  }
+  @media (max-width: 480px) {
+    .actions :global(.btn) {
+      flex: 1;
+    }
   }
 </style>
 

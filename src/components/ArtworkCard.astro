@@ -3,8 +3,8 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
 /**
- * A single artwork shown as an Explorer "file" tile: framed thumbnail +
- * filename-style label. Links to the artwork's detail page.
+ * A single artwork shown as a soft tile: rounded thumbnail + title + type.
+ * Links to the artwork's detail page.
  */
 interface Props {
   entry: CollectionEntry<'artwork'>;
@@ -15,7 +15,7 @@ const thumb = data.thumbnail ?? data.image;
 ---
 
 <a class="art-card" href={`/gallery/${entry.id}`} data-type={data.type}>
-  <span class="frame bevel-sunken">
+  <span class="frame well">
     <Image
       src={thumb}
       alt={data.title}
@@ -34,19 +34,31 @@ const thumb = data.thumbnail ?? data.image;
   .art-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 8px;
+    border-radius: var(--radius-sm);
     text-decoration: none;
-    color: var(--win-text);
-    text-align: center;
+    color: var(--ink);
+    transition: background var(--transition), transform var(--transition);
+  }
+  .art-card:hover,
+  .art-card:focus-visible {
+    background: var(--paper-2);
+  }
+  .art-card:active {
+    transform: scale(0.98);
   }
   .frame {
     width: 100%;
     aspect-ratio: 1;
     overflow: hidden;
-    background: var(--win-white);
-    padding: 4px;
+    border-radius: var(--radius-sm);
+    background: var(--paper-2);
+    padding: 0;
+    transition: box-shadow var(--transition);
+  }
+  .art-card:hover .frame {
+    box-shadow: var(--shadow);
   }
   .thumb {
     width: 100%;
@@ -54,23 +66,16 @@ const thumb = data.thumbnail ?? data.image;
     object-fit: cover;
   }
   .caption {
-    font-size: 8px;
-    line-height: 1.4;
-    padding: 2px 5px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.35;
     max-width: 100%;
   }
   .type-tag {
-    font-size: 0.72rem;
-    color: #555;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
     text-transform: capitalize;
-  }
-  .art-card:hover .caption,
-  .art-card:focus-visible .caption {
-    background: var(--win-selection);
-    color: var(--win-selection-text);
-    outline: 1px dotted var(--win-navy);
-  }
-  .art-card:hover .frame {
-    outline: 2px solid var(--win-luna-blue);
+    margin-top: -4px;
   }
 </style>
