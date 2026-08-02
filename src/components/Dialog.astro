@@ -200,7 +200,14 @@ const glyph = glyphs[variant];
       const opener = target.closest<HTMLElement>('[data-open-dialog]');
       if (opener) {
         const id = opener.getAttribute('data-open-dialog');
-        const overlay = id && document.getElementById(id);
+        // Several windows can be open at once and each carries its own copy of
+        // the menu dialogs, so look inside the opener's window before falling
+        // back to the document — otherwise every File menu opens the first one.
+        const scope = opener.closest<HTMLElement>('.window');
+        const overlay =
+          id &&
+          ((scope?.querySelector(`[id="${CSS.escape(id)}"]`) as HTMLElement | null) ??
+            document.getElementById(id));
         if (overlay) {
           opener.setAttribute('data-dialog-opener', '');
           overlay.hidden = false;

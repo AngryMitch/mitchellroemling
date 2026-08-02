@@ -298,7 +298,7 @@ const fmt = (d: Date) =>
 
   if (!(window as any).__mrProjectsTable) {
     (window as any).__mrProjectsTable = true;
-    document.addEventListener('astro:page-load', initProjectsTable);
+    document.addEventListener('mr:window-ready', initProjectsTable);
   }
   initProjectsTable();
 </script>

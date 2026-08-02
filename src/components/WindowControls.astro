@@ -1,8 +1,10 @@
 ---
 /**
  * The minimise / maximise / close cluster shown at the right of a TitleBar.
- * My windows are static (no real drag/resize), so these are mostly decorative,
- * except Close, which navigates to `closeHref` (defaults to the desktop).
+ *
+ * desktop.ts wires all three to the window they belong to. Close stays a real
+ * <a href> so that with JS off it still does something sensible (back to the
+ * desktop) instead of being a dead button.
  */
 interface Props {
   closeHref?: string;
@@ -17,7 +19,7 @@ const { closeHref = '/' } = Astro.props;
   <button type="button" class="ctrl ctrl-max" data-max aria-label="Maximise"
     >□</button
   >
-  <a class="ctrl ctrl-close" href={closeHref} aria-label="Close window">✕</a>
+  <a class="ctrl ctrl-close" href={closeHref} data-close aria-label="Close window">✕</a>
 </div>
 
 <style>
@@ -79,22 +81,8 @@ const { closeHref = '/' } = Astro.props;
     }
   }
 </style>
-<script>
-  // The minimise button (data-min) is wired up by the Taskbar, which owns the
-  // tray button it collapses into. Here we only handle maximise.
-  function initWindowControls() {
-    document.querySelectorAll<HTMLButtonElement>('[data-max]').forEach((btn) => {
-      if (btn.dataset.windowControlsReady) return;
-      btn.dataset.windowControlsReady = 'true';
-      btn.addEventListener('click', () => {
-        btn.closest<HTMLElement>('.window')?.classList.toggle('is-maximised');
-      });
-    });
-  }
+<!--
+  No script here on purpose: desktop.ts binds all three controls to the window
+  they sit in, because only it knows about the taskbar buttons and the stack.
+-->
 
-  if (!(window as any).__mrWindowControls) {
-    (window as any).__mrWindowControls = true;
-    document.addEventListener('astro:page-load', initWindowControls);
-  }
-  initWindowControls();
-</script>

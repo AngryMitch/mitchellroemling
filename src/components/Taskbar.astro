@@ -1,17 +1,13 @@
 ---
 import StartMenu from './StartMenu.astro';
-import { NAV_ITEMS } from '../consts';
 
 /**
- * Fixed bottom taskbar: Start button → StartMenu, a button for the active
- * "window" (current page), and a live clock island on the right.
+ * Fixed bottom taskbar: Start button → StartMenu, one button per open window,
+ * and a live clock island on the right.
+ *
+ * The task buttons are created by desktop.ts as windows open and close, so this
+ * renders an empty rail. With JS off there are no windows to track anyway.
  */
-const pathname = Astro.url.pathname;
-const active =
-  NAV_ITEMS.find((n) => pathname === n.match || pathname.startsWith(n.match + '/')) ??
-  null;
-const activeLabel = active ? active.label : pathname === '/' ? 'Desktop' : 'Window';
-const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 ---
 
 <footer class="taskbar">
@@ -29,18 +25,7 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 
   <div class="divider" aria-hidden="true"></div>
 
-  <div class="task-buttons">
-    <button
-      type="button"
-      class="task-btn active"
-      data-task-btn
-      aria-pressed="true"
-      title={`${activeLabel}, click to minimise / restore`}
-    >
-      <img src={activeIcon} alt="" class="pixelated" width="16" height="16" />
-      <span class="task-label">{activeLabel}</span>
-    </button>
-  </div>
+  <div id="task-buttons" class="task-buttons" aria-label="Open windows"></div>
 
   <div class="tray">
     <time id="taskbar-clock" class="clock font-chrome" datetime="">--:-- --</time>
@@ -106,7 +91,9 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
     min-width: 0;
     overflow: hidden;
   }
-  .task-btn {
+  /* :global because desktop.ts creates these chips at runtime, so they never
+     carry Astro's scoping attribute. Without it they render unstyled. */
+  .task-buttons :global(.task-btn) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -125,18 +112,25 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
     background: var(--paper-2);
     transition: background var(--transition), opacity var(--transition);
   }
-  .task-btn img {
+  .task-buttons :global(.task-btn img) {
     width: 18px;
     height: 18px;
     flex: none;
   }
+  /* The focused window's chip is the one wearing the accent. */
+  .task-buttons :global(.task-btn.is-focused) {
+    background: var(--accent-soft);
+    border-color: #eccc9f;
+    color: var(--ink);
+    opacity: 1;
+  }
   /* Minimised: the chip fades back instead of popping out. */
-  .task-btn.is-minimized {
+  .task-buttons :global(.task-btn.is-minimized) {
     background: transparent;
     color: var(--ink-soft);
     opacity: 0.7;
   }
-  .task-label {
+  .task-buttons :global(.task-label) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -158,10 +152,10 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
   }
   /* Narrow phones: the icon in the task chip is enough, keep "Start" readable. */
   @media (max-width: 480px) {
-    .task-label {
+    .task-buttons :global(.task-label) {
       display: none;
     }
-    .task-btn {
+    .task-buttons :global(.task-btn) {
       padding: 0 12px;
     }
     .tray {
@@ -171,9 +165,9 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 </style>
 
 <script>
-  // View Transitions friendly: I register the document-level listeners and the
-  // clock interval once, and re-bind the per-page elements on every
-  // `astro:page-load` (which fires on first load and after each navigation).
+  // The taskbar lives in the shell and is never re-rendered, so everything here
+  // binds exactly once. Window buttons are desktop.ts's job; this file only owns
+  // the Start menu and the clock.
 
   function closeStartMenu() {
     const btn = document.getElementById('start-button');
@@ -213,72 +207,16 @@ const activeIcon = active ? `/icons/${active.icon}.svg` : '/icons/computer.svg';
 
     // One interval for the life of the tab; it updates whatever clock is in the DOM.
     window.setInterval(tickClock, 1000 * 15);
-    document.addEventListener('astro:page-load', initTaskbar);
-  }
 
-  function initTaskbar() {
-    tickClock();
-
-    // ---- Start menu toggle ----
     const startBtn = document.getElementById('start-button');
     const startMenu = document.getElementById('start-menu');
-    if (startBtn && !startBtn.dataset.taskbarReady) {
-      startBtn.dataset.taskbarReady = 'true';
-      startBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const open = startBtn.getAttribute('aria-expanded') === 'true';
-        startBtn.setAttribute('aria-expanded', String(!open));
-        startMenu?.toggleAttribute('hidden', open);
-      });
-    }
-
-    // ---- Minimise the page window to / from the tray ----
-    const pageWindow = document.querySelector<HTMLElement>('.window-page .window');
-    const taskButton = document.querySelector<HTMLElement>('[data-task-btn]');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!pageWindow || !taskButton) return;
-
-    const setTaskMinimized = (min: boolean) => {
-      taskButton.classList.toggle('is-minimized', min);
-      taskButton.setAttribute('aria-pressed', String(!min));
-    };
-    const minimizeWindow = () => {
-      setTaskMinimized(true);
-      if (reduceMotion) {
-        pageWindow.classList.add('is-minimized');
-        return;
-      }
-      pageWindow.classList.add('is-minimizing');
-      window.setTimeout(() => {
-        pageWindow.classList.remove('is-minimizing');
-        pageWindow.classList.add('is-minimized');
-      }, 180);
-    };
-    const restoreWindow = () => {
-      setTaskMinimized(false);
-      pageWindow.classList.remove('is-minimized');
-      if (!reduceMotion) {
-        pageWindow.classList.add('is-restoring');
-        window.setTimeout(() => pageWindow.classList.remove('is-restoring'), 180);
-      }
-      pageWindow.scrollIntoView({ block: 'nearest' });
-    };
-
-    pageWindow
-      .querySelectorAll<HTMLElement>('[data-min]')
-      .forEach((btn) => {
-        if (btn.dataset.taskbarReady) return;
-        btn.dataset.taskbarReady = 'true';
-        btn.addEventListener('click', minimizeWindow);
-      });
-    if (!taskButton.dataset.taskbarReady) {
-      taskButton.dataset.taskbarReady = 'true';
-      taskButton.addEventListener('click', () => {
-        if (pageWindow.classList.contains('is-minimized')) restoreWindow();
-        else minimizeWindow();
-      });
-    }
+    startBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = startBtn.getAttribute('aria-expanded') === 'true';
+      startBtn.setAttribute('aria-expanded', String(!open));
+      startMenu?.toggleAttribute('hidden', open);
+    });
   }
 
-  initTaskbar();
+  tickClock();
 </script>

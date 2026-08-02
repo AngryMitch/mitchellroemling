@@ -377,7 +377,7 @@ import encData from '../generated/family.enc.json';
 
   if (!(window as any).__mrFamilyPage) {
     (window as any).__mrFamilyPage = true;
-    document.addEventListener('astro:page-load', initFamilyPage);
+    document.addEventListener('mr:window-ready', initFamilyPage);
   }
   initFamilyPage();
 </script>

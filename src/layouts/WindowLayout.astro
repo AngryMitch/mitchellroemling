@@ -3,9 +3,11 @@ import BaseLayout from './BaseLayout.astro';
 import Window from '../components/Window.astro';
 
 /**
- * A content page presented as a single maximised window floating on the
- * desktop. Pass the window `title` and `icon`; the default slot is the
- * window body. Optional `menubar` and `statusbar` slots pass through.
+ * A content page presented as a window on the desktop.
+ *
+ * The window is emitted bare into BaseLayout's #window-host. On desktops
+ * desktop.ts positions and sizes it; on phones (and with JS off) it just flows
+ * as a full-width block, which is what the site did before.
  */
 interface Props {
   title: string;
@@ -13,32 +15,27 @@ interface Props {
   description?: string;
   icon?: string;
   ogImage?: string;
+  noindex?: boolean;
+  /** Extra class on <body>; desktop.ts keeps `is-home` in sync after that. */
+  bodyClass?: string;
 }
-const { title, windowTitle, description, icon, ogImage } = Astro.props;
+const { title, windowTitle, description, icon, ogImage, noindex, bodyClass } =
+  Astro.props;
 
 const hasMenu = Astro.slots.has('menubar');
 const hasStatus = Astro.slots.has('statusbar');
 ---
 
-<BaseLayout title={title} description={description} ogImage={ogImage}>
-  <div class="window-page container">
-    <Window title={windowTitle} icon={icon} closeHref="/">
-      {hasMenu && <Fragment slot="menubar"><slot name="menubar" /></Fragment>}
-      <slot />
-      {hasStatus && <Fragment slot="statusbar"><slot name="statusbar" /></Fragment>}
-    </Window>
-  </div>
+<BaseLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  noindex={noindex}
+  bodyClass={bodyClass}
+>
+  <Window title={windowTitle} icon={icon} closeHref="/">
+    {hasMenu && <Fragment slot="menubar"><slot name="menubar" /></Fragment>}
+    <slot />
+    {hasStatus && <Fragment slot="statusbar"><slot name="statusbar" /></Fragment>}
+  </Window>
 </BaseLayout>
-
-<style>
-  .window-page {
-    position: relative;
-    z-index: 2;
-    pointer-events: none;
-    padding-top: clamp(0.75rem, 4vh, 2.5rem);
-    padding-bottom: 2rem;
-  }
-  .window-page :global(.window) {
-    pointer-events: auto;
-  }
-</style>

@@ -1,14 +1,19 @@
 ---
 import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
 import Taskbar from '../components/Taskbar.astro';
 import MusicPlayer from '../components/MusicPlayer.astro';
 import DesktopShortcuts from '../components/DesktopShortcuts.astro';
+import ArtworkViewer from '../components/ArtworkViewer.astro';
 import { SITE } from '../consts';
 
 /**
  * The HTML shell shared by every page: <head> meta, fonts, the desktop
- * wallpaper background, a slot for page content, and the fixed Taskbar.
+ * wallpaper, the window host, the Taskbar and the music player.
+ *
+ * Every page still renders standalone (crawlers and no-JS visitors get the full
+ * thing). Once scripts/desktop.ts boots it takes over navigation: links are
+ * intercepted and the target page's window is fetched into #window-host, so the
+ * document — and with it the music player's iframe — never reloads.
  */
 interface Props {
   title: string;
@@ -86,17 +91,23 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
       href="/rss.xml"
     />
 
-    <!-- Client-side routing so my music player can keep playing across pages. -->
-    <ClientRouter />
   </head>
-  <body class:list={['app', bodyClass, { 'no-chrome': !chrome }]}>
+  <body
+    class:list={['app', bodyClass, { 'no-chrome': !chrome }]}
+    data-site-name={SITE.name}
+  >
     <a class="skip-link" href="#main">Skip to content</a>
     {chrome && <DesktopShortcuts />}
     <main id="main" class="app-main">
-      <slot />
+      <div id="window-host" class="window-host">
+        <slot />
+      </div>
     </main>
     {chrome && <Taskbar />}
     {chrome && <MusicPlayer />}
+    {chrome && <ArtworkViewer />}
+
+    {chrome && <script>import '../scripts/desktop.ts';</script>}
 
     <style>
       .app {
@@ -116,12 +127,13 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
       .app-main {
         position: relative;
         z-index: 2;
+        /* Clicks fall through to the wallpaper and its icons; only windows
+           themselves catch them (re-enabled on .window below). */
         pointer-events: none;
         min-height: 100vh;
         min-height: 100dvh;
         padding-bottom: calc(var(--taskbar-gap) + 1rem);
       }
-      .app-main :global(.welcome),
       .app-main :global(.window) {
         pointer-events: auto;
       }
@@ -129,28 +141,85 @@ const ogImageUrl = new URL(ogImage, Astro.site ?? SITE.url).href;
         padding-bottom: 0;
       }
 
-      /* Phones: the floating desktop icons stop being wallpaper furniture and
-         become a normal grid under the welcome card, on the home page only.
-         Everywhere else the Start menu is enough. */
-      @media (max-width: 768px) {
-        .app.is-desktop {
+      /* Desktops: the host is the canvas windows float on, sized to the area
+         above the taskbar. desktop.ts positions each window inside it. */
+      @media (min-width: 768px) {
+        .window-host {
+          position: fixed;
+          inset: 0 0 var(--taskbar-gap) 0;
+          z-index: 2;
+        }
+        .window-host :global(.window) {
+          position: absolute;
+          overflow: hidden;
+          /* Relative to the host, so the cap follows viewport changes on its
+             own. desktop.ts keeps --win-top in step with the window's offset. */
+          max-height: calc(100% - var(--win-top, 12px) - 12px);
+        }
+        /* Windows scroll internally instead of growing the page. */
+        .window-host :global(.window-body) {
+          overflow: auto;
+          min-height: 0;
+        }
+        .window-host :global(.window.is-maximised) {
+          inset: 0 !important;
+          width: auto !important;
+          height: auto !important;
+          max-height: none !important;
+        }
+        .window-host :global(.window.is-dragging) {
+          user-select: none;
+          cursor: grabbing;
+          box-shadow: var(--shadow-lift);
+        }
+        .window-host :global(.window.is-dragging .title-bar) {
+          cursor: grabbing;
+        }
+        .window-host :global(.window .title-bar) {
+          cursor: grab;
+        }
+        .window-host :global(.window.is-minimized) {
+          display: none;
+        }
+      }
+
+      /* Phones: one window at a time in normal flow, and the desktop icons sit
+         under it on the home window only — exactly how the site behaved before. */
+      @media (max-width: 767px) {
+        .app {
           display: flex;
           flex-direction: column;
         }
-        .app.is-desktop .app-main {
+        .app .app-main {
           order: 0;
           min-height: 0;
-          padding-bottom: 0.5rem;
+          padding-bottom: 0;
+        }
+        /* WindowLayout no longer supplies its own container, so the gutter
+           lives here where both phone and desktop layouts can see it.
+           The bottom gap clears the fixed taskbar *and* the collapsed music
+           pill above it, so a window's last row of buttons stays tappable. */
+        .window-host {
+          padding: clamp(0.5rem, 3vw, 1rem) clamp(0.625rem, 3vw, 2rem)
+            calc(var(--taskbar-gap) + 4.5rem);
+        }
+        /* On the home window the icon grid follows and carries that gap
+           itself, so the window doesn't need to reserve it twice. */
+        .app.is-home .window-host {
+          padding-bottom: 1rem;
         }
         .app :global(.desktop-shortcuts) {
           display: none;
         }
-        .app.is-desktop :global(.desktop-shortcuts) {
+        .app.is-home :global(.desktop-shortcuts) {
           display: grid;
           order: 1;
           position: static;
           /* Extra room so the collapsed music pill never lands on an icon. */
           padding-bottom: calc(var(--taskbar-gap) + 4.5rem);
+        }
+        .window-host :global(.window.is-minimized) {
+          display: none;
         }
       }
     </style>

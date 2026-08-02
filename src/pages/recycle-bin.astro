@@ -130,7 +130,7 @@ const trash = [
 
   if (!(window as any).__mrRecycleBin) {
     (window as any).__mrRecycleBin = true;
-    document.addEventListener('astro:page-load', initRecycleBin);
+    document.addEventListener('mr:window-ready', initRecycleBin);
   }
   initRecycleBin();
 </script>

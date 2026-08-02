@@ -40,13 +40,23 @@ const dateStr = data.date.toLocaleDateString('en-US', {
 >
   <article class="artwork">
     <figure class="stage well">
-      <Image
-        src={data.image}
-        alt={data.title}
-        widths={[480, 800, 1200]}
-        sizes="(max-width: 800px) 100vw, 760px"
-        class="full"
-      />
+      <button
+        type="button"
+        class="zoom"
+        data-artwork-view
+        data-viewer-title={data.title}
+        data-viewer-caption={data.description}
+        aria-label={`View ${data.title} full screen`}
+      >
+        <Image
+          src={data.image}
+          alt={data.title}
+          widths={[480, 800, 1200, 1800]}
+          sizes="(max-width: 800px) 100vw, 760px"
+          class="full"
+        />
+        <span class="zoom-hint" aria-hidden="true">⤢ Click to enlarge</span>
+      </button>
     </figure>
 
     <div class="meta">
@@ -76,13 +86,13 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     <nav class="pager" aria-label="Artwork navigation">
       <div class="pager-side">
         {prev && (
-          <Button href={`/gallery/${prev.id}`}>‹ {prev.data.title}</Button>
+          <Button href={`/gallery/${prev.id}`} data-nav="prev">‹ {prev.data.title}</Button>
         )}
       </div>
       <Button href="/gallery">▦ Back to Gallery</Button>
       <div class="pager-side right">
         {next && (
-          <Button href={`/gallery/${next.id}`}>{next.data.title} ›</Button>
+          <Button href={`/gallery/${next.id}`} data-nav="next">{next.data.title} ›</Button>
         )}
       </div>
     </nav>
@@ -102,6 +112,18 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     display: grid;
     place-items: center;
   }
+  /* The image is a button so it's reachable by keyboard, but it shouldn't
+     look like one. */
+  .zoom {
+    position: relative;
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: var(--radius-xs);
+    cursor: zoom-in;
+    line-height: 0;
+  }
   .full {
     width: auto;
     max-width: 100%;
@@ -109,6 +131,38 @@ const dateStr = data.date.toLocaleDateString('en-US', {
     max-height: 70vh;
     object-fit: contain;
     border-radius: var(--radius-xs);
+    transition: filter var(--transition);
+  }
+  .zoom:hover .full {
+    filter: brightness(0.94);
+  }
+  .zoom-hint {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-chrome);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    background: rgba(255, 253, 248, 0.92);
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .zoom:hover .zoom-hint,
+  .zoom:focus-visible .zoom-hint {
+    opacity: 1;
+  }
+  /* Nothing to hover on a phone, so keep the affordance permanently visible.
+     Width is checked as well as `hover`, since viewport emulation reports a
+     mouse even at phone sizes. */
+  @media (hover: none), (max-width: 767px) {
+    .zoom-hint {
+      opacity: 1;
+    }
   }
   .title {
     font-family: var(--font-body);

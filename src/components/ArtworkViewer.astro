@@ -1,0 +1,422 @@
+---
+/**
+ * Full-screen artwork viewer — the popup that opens when you click the image
+ * inside an artwork window.
+ *
+ * It lives in the shell rather than in the artwork page, for two reasons: the
+ * markup survives windows opening and closing underneath it, and it is a plain
+ * overlay rather than a managed window, so it never navigates and never
+ * disturbs the music player.
+ *
+ * Triggers are delegated, so any `[data-artwork-view]` button anywhere on the
+ * desktop opens it — including inside windows fetched after page load.
+ */
+---
+
+<div
+  id="artwork-viewer"
+  class="viewer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="artwork-viewer-title"
+  hidden
+>
+  <div class="viewer-bar">
+    <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span id="artwork-viewer-title" class="viewer-title"></span>
+    <button type="button" class="viewer-close" data-viewer-close aria-label="Close viewer">
+      ✕
+    </button>
+  </div>
+
+  <figure class="viewer-stage">
+    <button
+      type="button"
+      class="viewer-nav prev"
+      data-viewer-nav="prev"
+      aria-label="Previous artwork"
+      hidden
+    >‹</button>
+
+    <!-- Image and blurb are one centred group, so the caption always sits
+         tucked directly under the picture rather than at the screen edge. -->
+    <div class="viewer-item">
+      <div class="viewer-frame" data-viewer-frame></div>
+      <figcaption class="viewer-caption" data-viewer-caption></figcaption>
+    </div>
+
+    <button
+      type="button"
+      class="viewer-nav next"
+      data-viewer-nav="next"
+      aria-label="Next artwork"
+      hidden
+    >›</button>
+  </figure>
+</div>
+
+<style>
+  .viewer {
+    --viewer-pad: clamp(0.5rem, 2vw, 1rem);
+    /* Title bar + both gaps + roughly three lines of blurb + the padding, so
+       the picture never grows into the caption or off the bottom edge. */
+    --viewer-img-max: calc(
+      100dvh - 44px - 8.25rem - var(--viewer-pad) * 2 - env(safe-area-inset-bottom, 0px)
+    );
+
+    position: fixed;
+    inset: 0;
+    /* Above the taskbar (150) and the music player (140). */
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    padding: var(--viewer-pad);
+    padding-bottom: calc(var(--viewer-pad) + env(safe-area-inset-bottom, 0px));
+    gap: 0.6rem;
+    background: rgba(58, 46, 32, 0.72);
+    backdrop-filter: blur(10px) saturate(1.1);
+    animation: viewer-in 180ms cubic-bezier(0.32, 0.72, 0.35, 1);
+  }
+  .viewer[hidden] {
+    display: none;
+  }
+  @keyframes viewer-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .viewer-bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 4px 6px 4px 14px;
+    border-radius: var(--radius);
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, #ffdfb9 100%);
+    box-shadow: var(--shadow);
+  }
+  .dots {
+    display: inline-flex;
+    gap: 5px;
+    flex: none;
+  }
+  .dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #f8cd82;
+  }
+  .dots i:nth-child(2) {
+    background: #a5d8bd;
+  }
+  .dots i:nth-child(3) {
+    background: #f4aca2;
+  }
+  .viewer-title {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-chrome);
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .viewer-close {
+    position: relative;
+    flex: none;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(74, 70, 64, 0.6);
+    background: #f4aca2;
+    border: 1px solid rgba(120, 96, 60, 0.16);
+    border-radius: 50%;
+    transition: transform var(--transition);
+  }
+  /* Keeps the dot small while giving it a comfortable 44px hit area. */
+  .viewer-close::after {
+    content: '';
+    position: absolute;
+    inset: -9px;
+  }
+  .viewer-close:hover {
+    color: rgba(74, 70, 64, 0.95);
+  }
+  .viewer-close:active {
+    transform: scale(0.9);
+  }
+
+  .viewer-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Let the browser handle vertical panning but keep horizontal drags for
+       our own swipe handler. */
+    touch-action: pan-y;
+  }
+
+  .viewer-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0 0 4px;
+    font-family: var(--font-chrome);
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--ink);
+    background: rgba(255, 253, 248, 0.9);
+    border: 1px solid rgba(120, 96, 60, 0.18);
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    transition: background var(--transition), transform var(--transition);
+  }
+  .viewer-nav[hidden] {
+    display: none;
+  }
+  .viewer-nav.prev {
+    left: 0;
+  }
+  .viewer-nav.next {
+    right: 0;
+  }
+  .viewer-nav:hover {
+    background: var(--accent-soft);
+  }
+  .viewer-nav:active {
+    transform: translateY(-50%) scale(0.92);
+  }
+  @media (max-width: 640px) {
+    .viewer-nav {
+      width: 42px;
+      height: 42px;
+      font-size: 1.4rem;
+      background: rgba(255, 253, 248, 0.82);
+    }
+  }
+  .viewer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    max-width: 100%;
+    min-height: 0;
+  }
+  .viewer-frame {
+    display: flex;
+    min-height: 0;
+    justify-content: center;
+  }
+  /* The <img> is cloned in by the script, hence :global.
+     The cap is in viewport units on purpose: a percentage would have to resolve
+     against an auto-height ancestor, which it can't, and the image would render
+     at natural size and run off the screen. The subtraction reserves the title
+     bar, the gaps, and up to about three lines of blurb. */
+  .viewer-frame :global(img) {
+    max-width: 100%;
+    max-height: var(--viewer-img-max);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  }
+  .viewer-caption {
+    flex: none;
+    max-width: min(70ch, 100%);
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-sm);
+    background: rgba(30, 24, 16, 0.45);
+    text-align: center;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: rgba(255, 253, 248, 0.92);
+    text-wrap: balance;
+  }
+  .viewer-caption:empty {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .viewer {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Delegated and registered once: the shell is never re-rendered, and windows
+  // containing triggers can be swapped in and out beneath the overlay.
+  if (!(window as any).__mrArtworkViewer) {
+    (window as any).__mrArtworkViewer = true;
+
+    const viewer = document.getElementById('artwork-viewer');
+    const frame = viewer?.querySelector<HTMLElement>('[data-viewer-frame]');
+    const caption = viewer?.querySelector<HTMLElement>('[data-viewer-caption]');
+    const titleEl = document.getElementById('artwork-viewer-title');
+    const closeBtn = viewer?.querySelector<HTMLButtonElement>('[data-viewer-close]');
+    let opener: HTMLElement | null = null;
+
+    function open(trigger: HTMLElement) {
+      if (!viewer || !frame || !titleEl || !caption) return;
+      const source = trigger.querySelector('img');
+      if (!source) return;
+
+      // Reuse the artwork's existing srcset and just ask for a full-viewport
+      // candidate, so the viewer costs no extra generated images.
+      const clone = source.cloneNode(true) as HTMLImageElement;
+      clone.removeAttribute('class');
+      clone.removeAttribute('width');
+      clone.removeAttribute('height');
+      clone.removeAttribute('style');
+      clone.loading = 'eager';
+      if (clone.getAttribute('srcset')) clone.setAttribute('sizes', '100vw');
+
+      frame.replaceChildren(clone);
+      titleEl.textContent = trigger.dataset.viewerTitle || source.alt || 'Artwork';
+      caption.textContent = trigger.dataset.viewerCaption || '';
+
+      opener = trigger;
+      viewer.hidden = false;
+      syncNavButtons();
+      // The desktop behind must not scroll while the overlay is up.
+      document.body.style.overflow = 'hidden';
+      closeBtn?.focus();
+    }
+
+    function close() {
+      if (!viewer || viewer.hidden) return;
+      viewer.hidden = true;
+      frame?.replaceChildren();
+      document.body.style.overflow = '';
+      opener?.focus();
+      opener = null;
+    }
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+
+      const trigger = target.closest<HTMLElement>('[data-artwork-view]');
+      if (trigger) {
+        e.preventDefault();
+        open(trigger);
+        return;
+      }
+      if (!viewer || viewer.hidden) return;
+      // The close button, or any click on the dimmed space around the image —
+      // i.e. anything that isn't the image itself or the title bar.
+      const onChrome = !!target.closest('.viewer-bar');
+      const onImage = target.tagName === 'IMG';
+      if (target.closest('[data-viewer-close]') || (!onChrome && !onImage && viewer.contains(target))) {
+        close();
+      }
+    });
+
+    /* ---------------------------------------------------- stepping artworks */
+    /* Navigation reuses the artwork window's own prev/next pager links, so the
+       desktop router stays the single place that knows how to swap a window —
+       swipe, arrow keys and the on-screen arrows all funnel through it. */
+    let reopenAfterSwap = false;
+
+    function pagerLink(dir: 'prev' | 'next'): HTMLAnchorElement | null {
+      const scope =
+        (opener?.closest('.window') as HTMLElement | null) ??
+        document.querySelector<HTMLElement>('.window.is-focused') ??
+        document;
+      return scope.querySelector<HTMLAnchorElement>(`.pager [data-nav="${dir}"]`);
+    }
+
+    function step(dir: 'prev' | 'next') {
+      const link = pagerLink(dir);
+      if (!link) return; // first or last artwork — nothing to go to
+      reopenAfterSwap = viewer ? !viewer.hidden : false;
+      link.click();
+    }
+
+    function syncNavButtons() {
+      viewer?.querySelectorAll<HTMLElement>('[data-viewer-nav]').forEach((btn) => {
+        btn.hidden = !pagerLink(btn.dataset.viewerNav as 'prev' | 'next');
+      });
+    }
+
+    // The router swaps the window in place; once the new one is live, refresh
+    // the overlay from its trigger so the picture follows the swipe.
+    document.addEventListener('mr:window-ready', () => {
+      if (!reopenAfterSwap) return;
+      reopenAfterSwap = false;
+      const next =
+        document.querySelector<HTMLElement>('.window.is-focused [data-artwork-view]') ??
+        document.querySelector<HTMLElement>('[data-artwork-view]');
+      if (next) open(next);
+      else close();
+    });
+
+    viewer?.querySelectorAll<HTMLElement>('[data-viewer-nav]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // don't let it read as a backdrop click
+        step(btn.dataset.viewerNav as 'prev' | 'next');
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') return close();
+      if (!viewer || viewer.hidden) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step('prev'); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); step('next'); }
+    });
+
+    /* ------------------------------------------------------------- swiping */
+    // Touch only: a mouse drag would fight with dragging windows by their bars.
+    const SWIPE_MIN = 45; // px before it counts as a swipe at all
+    let startX = 0;
+    let startY = 0;
+    let swiping = false;
+
+    document.addEventListener(
+      'touchstart',
+      (e) => {
+        swiping = false;
+        if (e.touches.length !== 1) return;
+        const target = e.target as HTMLElement;
+        const inViewer = !!viewer && !viewer.hidden && viewer.contains(target);
+        const onArtwork = !!target.closest?.('[data-artwork-view]');
+        if (!inViewer && !onArtwork) return;
+        if (target.closest?.('[data-viewer-nav], [data-viewer-close]')) return;
+        swiping = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      'touchend',
+      (e) => {
+        if (!swiping) return;
+        swiping = false;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        // Ignore anything that reads as a vertical scroll rather than a swipe.
+        if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        step(dx < 0 ? 'next' : 'prev');
+      },
+      { passive: true },
+    );
+  }
+</script>

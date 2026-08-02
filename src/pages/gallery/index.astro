@@ -157,7 +157,7 @@ const counts = {
 
   if (!(window as any).__mrGalleryFilters) {
     (window as any).__mrGalleryFilters = true;
-    document.addEventListener('astro:page-load', initGalleryFilters);
+    document.addEventListener('mr:window-ready', initGalleryFilters);
   }
   initGalleryFilters();
 </script>

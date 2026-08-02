@@ -1,79 +1,47 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import WindowLayout from '../layouts/WindowLayout.astro';
 import { SITE } from '../consts';
+
+/**
+ * The desktop's home window. It was already drawn to look like a little
+ * Notepad window, so now it simply *is* one — same chrome, same controls and
+ * same taskbar button as every other window.
+ */
 ---
 
-<BaseLayout title={SITE.name} description={SITE.description} bodyClass="is-desktop">
-  <div class="desktop">
-    <div class="welcome surface" role="note">
-      <div class="welcome-bar font-chrome">
-        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        Welcome.txt
-      </div>
-      <div class="welcome-body">
-        <p class="hi">hi! i'm {SITE.name.split(' ')[0]}</p>
-        <p class="role">{SITE.tagline}</p>
-        <p>
-          This is my corner of the web, dressed up like a cosy little desktop.
-          Open an icon to wander through my artwork, code projects, and
-          writing, or tap <strong>Start</strong> down in the corner.
-        </p>
-      </div>
-    </div>
+<WindowLayout
+  title={SITE.name}
+  windowTitle="Welcome.txt"
+  icon="/icons/computer.svg"
+  description={SITE.description}
+  bodyClass="is-home"
+>
+  <div class="welcome-body">
+    <p class="hi">hi! i'm {SITE.name.split(' ')[0]}</p>
+    <p class="role">{SITE.tagline}</p>
+    <p>
+      This is my corner of the web, dressed up like a cosy little desktop.
+      Open an icon to wander through my artwork, code projects, and
+      writing, or hit <strong>Start</strong> down in the corner.
+    </p>
+    <p class="tip">
+      Everything opens in its own window, so you can keep a few things going
+      at once — and the music keeps playing wherever you wander.
+    </p>
   </div>
-</BaseLayout>
+
+  <Fragment slot="statusbar">
+    <span class="status-cell">Ready</span>
+    <span class="status-cell grow">{SITE.name}</span>
+  </Fragment>
+</WindowLayout>
 
 <style>
-  .desktop {
-    min-height: calc(100dvh - var(--taskbar-gap) - 1rem);
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: start;
-    align-content: stretch;
-    gap: 1.5rem;
-    padding: 1.25rem;
-  }
-  .welcome {
-    justify-self: end;
-    width: min(380px, 90vw);
-    margin-top: 1rem;
-    padding: 8px;
-  }
-  .welcome-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    color: var(--ink);
-    padding: 8px 12px;
-    border-radius: var(--radius-inner);
-    background: linear-gradient(180deg, var(--accent-soft) 0%, #ffdfb9 100%);
-  }
-  /* Decorative traffic lights, matching the real window controls. */
-  .dots {
-    display: inline-flex;
-    gap: 5px;
-  }
-  .dots i {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: #f8cd82;
-  }
-  .dots i:nth-child(2) {
-    background: #a5d8bd;
-  }
-  .dots i:nth-child(3) {
-    background: #f4aca2;
-  }
   .welcome-body {
-    background: var(--paper);
-    border-radius: var(--radius-sm);
-    margin-top: 6px;
-    padding: 20px 22px;
     font-family: var(--font-body);
     line-height: 1.7;
     color: var(--ink);
+    max-width: 46ch;
   }
   .hi {
     font-size: 1.65rem;
@@ -86,21 +54,11 @@ import { SITE } from '../consts';
     color: var(--accent-2);
     font-weight: 700;
   }
-
-  @media (max-width: 768px) {
-    .desktop {
-      min-height: 0;
-      align-content: start;
-      gap: 1rem;
-      padding: 1rem clamp(0.625rem, 3vw, 2rem) 0.5rem;
-    }
-    .welcome {
-      justify-self: stretch;
-      width: 100%;
-      margin-top: 0.25rem;
-    }
-    .welcome-body {
-      padding: 18px;
-    }
+  .welcome-body p + p {
+    margin-top: 0.9rem;
+  }
+  .tip {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
   }
 </style>

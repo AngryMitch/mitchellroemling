@@ -256,7 +256,7 @@ const funStats = [
 
   if (!(window as any).__mrAboutTabs) {
     (window as any).__mrAboutTabs = true;
-    document.addEventListener('astro:page-load', initAboutTabs);
+    document.addEventListener('mr:window-ready', initAboutTabs);
   }
   initAboutTabs();
 </script>

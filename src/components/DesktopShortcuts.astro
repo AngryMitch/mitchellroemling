@@ -3,6 +3,9 @@ import DesktopIcon from './DesktopIcon.astro';
 import { NAV_ITEMS } from '../consts';
 
 const shortcuts = [
+  // Welcome.txt is a closable window like any other, so it needs an icon to
+  // open it again — otherwise closing it is a one-way door.
+  { href: '/', icon: 'computer', label: 'Welcome.txt' },
   ...NAV_ITEMS.map((n) => ({ href: n.href, icon: n.icon, label: n.label })),
   { href: '/recycle-bin', icon: 'recycle', label: 'Recycle Bin' },
   { href: '/family', icon: 'family-locked', label: '.family' },
@@ -14,31 +17,45 @@ const shortcuts = [
 </nav>
 
 <style>
+  /* Anchored top-left and filling downwards, the way desktop icons actually
+     behave — and, more practically, so windows cascade beside them instead of
+     burying them. */
   .desktop-shortcuts {
     position: fixed;
-    left: 1.25rem;
-    bottom: calc(var(--taskbar-gap) + 1.25rem);
+    left: 0.75rem;
+    top: 0.75rem;
+    bottom: var(--taskbar-gap);
     z-index: 1;
     display: grid;
-    grid-template-columns: repeat(2, 96px);
-    gap: 6px;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(auto-fill, 92px);
+    grid-auto-columns: 96px;
+    gap: 4px;
     align-content: start;
+    justify-content: start;
   }
 
-  /* BaseLayout drops these into the page flow at this width; see its
-     `.app.is-desktop` block. Two comfortable columns of cards. */
-  @media (max-width: 768px) {
+  /* Phones: BaseLayout drops these into the page flow under the home window.
+     Every column-flow property above has to be unwound, or the icons lay out
+     sideways and run off the screen. Breakpoint matches BaseLayout's 767px. */
+  @media (max-width: 767px) {
     .desktop-shortcuts {
-      grid-template-columns: repeat(2, 1fr);
+      position: static;
+      inset: auto;
+      grid-auto-flow: row;
+      grid-template-rows: none;
+      grid-auto-columns: auto;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       width: 100%;
+      justify-content: stretch;
       padding-inline: clamp(0.625rem, 3vw, 2rem);
     }
   }
 
   @media (max-width: 380px) {
     .desktop-shortcuts {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>
