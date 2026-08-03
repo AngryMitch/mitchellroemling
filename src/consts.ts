@@ -11,7 +11,7 @@ export const SITE = {
   tagline: 'Artist & Developer',
   /** Default meta description for SEO. */
   description:
-    'My personal portfolio: mixed-media artwork, coding projects, and writing, served up in a cosy retro Windows desktop.',
+    'My personal portfolio: mixed-media artwork, coding projects, and writing, served up in a cosy retro desktop.',
   /** Canonical production URL (keep in sync with astro.config.mjs `site`). */
   url: 'https://mitchellroemling.com',
   /** My email, which doubles as my primary contact. */
